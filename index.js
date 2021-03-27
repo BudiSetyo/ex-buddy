@@ -1,7 +1,9 @@
 require('dotenv').config();
 // import express from 'express';
 const express = require('express');
-const authRoute = require('./routes/auth');
+const logger = require('morgan');
+
+const Router = require('./src/routers/router');
 
 //init express app
 const app = express();
@@ -20,7 +22,8 @@ const jsonParser = express.json();
 // body x-www-form-urlencoded
 const urlEncodedParser = express.urlencoded();
 
+app.use(logger('dev'));
 app.use(jsonParser);
 app.use(urlEncodedParser);
 
-app.use('/auth', authRoute);
+app.use(Router);

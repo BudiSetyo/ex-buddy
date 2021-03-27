@@ -37,23 +37,22 @@ exports.register = (req, res) => {
       res.status(400).json({
         message: 'username already exist',
       });
-      return;
-    }
-  });
+    } else {
+      const insert = `INSERT INTO users (username, email, password) VALUES (?, ?, ?)`;
 
-  const insert = `INSERT INTO users (username, email, password) VALUES (?, ?, ?)`;
+      connect.query(insert, [username, email, password], (err, result) => {
+        if (err) {
+          console.log(err);
+          return res.status(500).json({
+            message: 'terjadi kesalahan pada sistem',
+          });
+        }
 
-  connect.query(insert, [username, email, password], (err, result) => {
-    if (err) {
-      console.log(err);
-      return res.status(500).json({
-        message: 'terjadi kesalahan pada sistem',
+        res.status(200).json({
+          message: 'berhasil menambahkan data',
+          result,
+        });
       });
     }
-
-    res.status(200).json({
-      message: 'berhasil menambahkan data',
-      result,
-    });
   });
 };

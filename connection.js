@@ -1,18 +1,18 @@
-require('dotenv/config');
+// require('dotenv/config');
 
-const mysql = require('mysql');
+// const mysql = require('mysql');
 
-const { DB_HOST, DB_USER, DB_PASSWORD, DB_DATABASE } = process.env;
+// const { DB_HOST, DB_USER, DB_PASSWORD, DB_DATABASE } = process.env;
 
-const connection = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: '',
-  database: 'buddy',
-});
+// const connection = mysql.createConnection({
+//   host: 'localhost',
+//   user: 'root',
+//   password: '',
+//   database: 'buddy',
+// });
 
-connection.connect((err) => {
-  if (err) throw err;
-});
+// connection.connect((err) => {
+//   if (err) throw err;
+// });
 
-module.exports = connection;
+// module.exports = connection;
