@@ -20,10 +20,22 @@ const getAllClass = (searchValue, category, level, pricingSort) => {
     paramData = [...paramData, pricingSort];
   }
 
-  console.log(paramData);
-
   return new Promise((resolve, reject) => {
     connect.query(queryString, paramData, (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result);
+      }
+    });
+  });
+};
+
+const getClassById = (id) => {
+  const queryString = `SELECT * FROM class WHERE id=?`;
+
+  return new Promise((resolve, reject) => {
+    connect.query(queryString, [id], (err, result) => {
       if (err) {
         reject(err);
       } else {
@@ -71,5 +83,6 @@ const postCLass = (
 
 module.exports = {
   getAllClass,
+  getClassById,
   postCLass,
 };

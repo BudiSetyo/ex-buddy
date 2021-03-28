@@ -44,16 +44,16 @@ const register = async (req, res) => {
         });
       })
       .catch((err) => {
-        res.status(500).send({
-          message: 'error',
-          err,
-        });
+        writeError(res, 500, err);
       });
   });
 };
 
 const login = async (req, res) => {
   const username = req.body.username || '';
+  const password = req.body.password || '';
+
+  console.log({ username, password });
 
   const usernameTaken = (await authModel.getUserByUsername(username)) || [];
 
@@ -62,14 +62,21 @@ const login = async (req, res) => {
       message: 'username does not exist',
     });
     return;
-  } else {
-    const myPlaintextPassword = '4532ampot';
-    const hash = usernameTaken[0].password;
-
-    bcrypt.compare(myPlaintextPassword, hash, (err, result) => {
-      writeResponse(res, null, 200, result);
-    });
   }
+
+  const hash = usernameTaken[0].password;
+
+  bcrypt.compare(password, hash, (err, result) => {
+    if (result) {
+      writeResponse(res, null, 200, usernameTaken[0]);
+    } else if (hash !== password) {
+      res.status(500).send({
+        message: 'wrong password',
+      });
+    } else {
+      writeError(res, 500, err);
+    }
+  });
 };
 
 module.exports = {

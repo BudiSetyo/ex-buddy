@@ -3,6 +3,7 @@ const Router = require('express').Router();
 const classHandler = require('../handlers/class');
 
 Router.get('/', classHandler.getAllClass);
-Router.post('/addclass', classHandler.postCLass);
+Router.get('/:id', classHandler.getCLassById);
+Router.post('/', classHandler.postCLass);
 
 module.exports = Router;

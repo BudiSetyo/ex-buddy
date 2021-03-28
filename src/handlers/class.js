@@ -1,6 +1,8 @@
 const mysql = require('mysql');
 const allClassModel = require('../models/class');
 
+const { writeResponse, writeError } = require('../helpers/response');
+
 const getAllClass = async (req, res) => {
   const { search, category, levels, pricing } = req.query;
   const searchValue = `%${search || ''}%`;
@@ -19,6 +21,19 @@ const getAllClass = async (req, res) => {
         message: 'error',
         err,
       });
+    });
+};
+
+const getCLassById = async (req, res) => {
+  const id = req.params.id;
+
+  allClassModel
+    .getClassById(id)
+    .then((result) => {
+      writeResponse(res, null, 200, result);
+    })
+    .catch((err) => {
+      writeError(res, 500, err);
     });
 };
 
@@ -76,5 +91,6 @@ const postCLass = async (req, res) => {
 
 module.exports = {
   getAllClass,
+  getCLassById,
   postCLass,
 };
