@@ -4,12 +4,12 @@ const allClassModel = require('../models/class');
 const { writeResponse, writeError } = require('../helpers/response');
 
 const getAllClass = async (req, res) => {
-  const { search, category, levels, pricing } = req.query;
+  const { search, category, level, pricing } = req.query;
   const searchValue = `%${search || ''}%`;
   const pricingSort = pricing ? mysql.raw(pricing) : '';
 
   allClassModel
-    .getAllClass(searchValue, category, levels, pricingSort)
+    .getAllClass(searchValue, category, level, pricingSort)
     .then((result) => {
       res.status(200).send({
         message: 'success',
