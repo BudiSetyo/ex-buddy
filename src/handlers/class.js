@@ -76,12 +76,14 @@ const postCLass = async (req, res) => {
       level,
       price
     )
-    .then(() => {
+    .then((result) => {
       res.status(200).send({
         message: 'success',
+        result,
       });
     })
     .catch((err) => {
+      console.log(err);
       res.status(500).send({
         message: 'error',
         err,

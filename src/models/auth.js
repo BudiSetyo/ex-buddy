@@ -42,8 +42,24 @@ const getUserByEmail = (email) => {
   });
 };
 
+const updatePasswordByEmail = (password, email, id) => {
+  return new Promise((resolve, reject) => {
+    const queryString = `UPDATE users SET password=? WHERE email=?`;
+
+    connect.query(queryString, [password, email], (err, result) => {
+      if (err) {
+        // console.log(err);
+        reject(err);
+      } else {
+        resolve(result);
+      }
+    });
+  });
+};
+
 module.exports = {
   register,
   getUserByUsername,
   getUserByEmail,
+  updatePasswordByEmail,
 };
