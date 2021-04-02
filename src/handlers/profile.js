@@ -3,7 +3,7 @@ const profileModels = require('../models/profile');
 const { writeResponse, writeError } = require('../helpers/response');
 
 const updateProfile = async (req, res) => {
-  const { id } = req.params;
+  const id = req.params.id;
   const { fullName, phoneNumber } = req.body;
 
   if (!fullName || !phoneNumber || !id) {
@@ -22,6 +22,7 @@ const updateProfile = async (req, res) => {
       });
     })
     .catch((err) => {
+      console.log(err)
       writeError(res, 500, err);
     });
 };

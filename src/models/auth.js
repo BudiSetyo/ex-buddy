@@ -2,7 +2,7 @@ const connect = require('../database/connection');
 
 const register = (username, email, password) => {
   return new Promise((resolve, reject) => {
-    const queryString = `INSERT INTO users (username, email, password) VALUES (?, ?, ?)`;
+    const queryString = `INSERT INTO users (user_name, email, password) VALUES (?, ?, ?)`;
 
     connect.query(queryString, [username, email, password], (err) => {
       if (err) {
@@ -16,7 +16,7 @@ const register = (username, email, password) => {
 
 const getUserByUsername = (username) => {
   return new Promise((resolve, reject) => {
-    const queryString = `SELECT * FROM users WHERE username=?`;
+    const queryString = `SELECT * FROM users WHERE user_name=?`;
 
     connect.query(queryString, [username], (err, result) => {
       if (err) {

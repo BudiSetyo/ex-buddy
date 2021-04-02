@@ -2,6 +2,6 @@ const Router = require('express').Router();
 
 const profileHandler = require('../handlers/profile');
 
-Router.get('/', profileHandler.updateProfile);
+Router.patch('/:id', profileHandler.updateProfile);
 
 module.exports = Router;

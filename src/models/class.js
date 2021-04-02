@@ -1,7 +1,7 @@
 const connect = require('../database/connection');
 
 const getAllClass = (searchValue, category, level, pricingSort) => {
-  let queryString = `SELECT * FROM class INNER JOIN categories ON class.category = categories.id INNER JOIN levels ON class.level = levels.id WHERE classname LIKE ?`;
+  let queryString = `SELECT * FROM class INNER JOIN categories ON class.category = categories.id INNER JOIN levels ON class.level = levels.id WHERE class_name LIKE ?`;
 
   let paramData = [searchValue];
 
@@ -56,7 +56,7 @@ const postCLass = (
   price
 ) => {
   return new Promise((resolve, reject) => {
-    const queryString = `INSERT INTO class (classname, description, day, starttime, endtime, category, level, pricing) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+    const queryString = `INSERT INTO class (class_name, description, day, start_time, end_time, category, level, pricing) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
 
     connect.query(
       queryString,

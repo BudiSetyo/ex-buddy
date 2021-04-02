@@ -7,6 +7,6 @@ const profile = require('./profile');
 Router.use('/auth', auth);
 Router.use('/class', classRoute);
 Router.use('/myclass', myclassRoute);
-Router.use('profile', profile);
+Router.use('/profile', profile);
 
 module.exports = Router;
