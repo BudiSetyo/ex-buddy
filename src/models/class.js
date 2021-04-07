@@ -1,7 +1,7 @@
 const connect = require('../database/connection');
 
 const getAllClass = (searchValue, category, level, pricingSort) => {
-  let queryString = `SELECT * FROM class INNER JOIN categories ON class.category = categories.id INNER JOIN levels ON class.level = levels.id WHERE class_name LIKE ?`;
+  let queryString = `SELECT id_class, class_name, description, category_name, level_name, pricing FROM class INNER JOIN categories ON class.category = categories.id INNER JOIN levels ON class.level = levels.id WHERE class_name LIKE ?`;
 
   let paramData = [searchValue];
 
@@ -32,7 +32,7 @@ const getAllClass = (searchValue, category, level, pricingSort) => {
 };
 
 const getClassById = (id) => {
-  const queryString = `SELECT * FROM class WHERE id=?`;
+  const queryString = `SELECT * FROM class WHERE id_class=?`;
 
   return new Promise((resolve, reject) => {
     connect.query(queryString, [id], (err, result) => {
@@ -81,8 +81,25 @@ const postCLass = (
   });
 };
 
+const getClassUser = (idUser, searchValue) => {
+  let queryString = `SELECT * FROM my_class INNER JOIN class ON my_class.id_class = class.id_class INNER JOIN levels ON class.level = levels.id INNER JOIN categories ON class.category = categories.id WHERE id_user=? AND class_name LIKE ?`;
+
+  let paramData = [idUser, searchValue];
+
+  return new Promise((resolve, reject) => {
+    connect.query(queryString, paramData, (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result);
+      }
+    });
+  });
+};
+
 module.exports = {
   getAllClass,
   getClassById,
   postCLass,
+  getClassUser,
 };

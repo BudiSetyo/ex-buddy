@@ -1,5 +1,4 @@
 const profileModels = require('../models/profile');
-
 const { writeResponse, writeError } = require('../helpers/response');
 
 const updateProfile = async (req, res) => {
@@ -22,7 +21,7 @@ const updateProfile = async (req, res) => {
       });
     })
     .catch((err) => {
-      console.log(err)
+      console.log(err);
       writeError(res, 500, err);
     });
 };

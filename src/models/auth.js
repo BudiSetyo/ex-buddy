@@ -42,7 +42,7 @@ const getUserByEmail = (email) => {
   });
 };
 
-const updatePasswordByEmail = (password, email, id) => {
+const updatePasswordByEmail = (password, email) => {
   return new Promise((resolve, reject) => {
     const queryString = `UPDATE users SET password=? WHERE email=?`;
 

@@ -91,8 +91,25 @@ const postCLass = async (req, res) => {
     });
 };
 
+const getUserClass = async (req, res) => {
+  const { search } = req.query;
+  const searchValue = `%${search || ''}%`;
+  const idUser = req.params.idUser;
+
+  allClassModel
+    .getClassUser(idUser, searchValue)
+    .then((result) => {
+      writeResponse(res, null, 200, result);
+    })
+    .catch((err) => {
+      console.log(err);
+      writeError(res, 500, err);
+    });
+};
+
 module.exports = {
   getAllClass,
   getCLassById,
   postCLass,
+  getUserClass,
 };
