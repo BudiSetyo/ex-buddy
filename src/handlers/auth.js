@@ -117,6 +117,7 @@ const login = (req, res) => {
   authModel
     .login(req.body)
     .then((result) => {
+      console.log(result);
       writeResponse(res, null, 200, { token: result });
     })
     .catch((err) => {

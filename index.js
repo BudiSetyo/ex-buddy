@@ -27,5 +27,6 @@ app.use(logger('dev'));
 app.use(jsonParser);
 app.use(urlEncodedParser);
 app.use(cors());
+app.use(express.static('public'));
 
 app.use(Router);

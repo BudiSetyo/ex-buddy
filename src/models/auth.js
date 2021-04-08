@@ -66,9 +66,9 @@ const login = (body) => {
     const queryString = `SELECT * FROM users WHERE user_name=?`;
 
     connect.query(queryString, username, (err, result) => {
-      console.log(result);
+      // console.log(result);
       if (err) {
-        console.log(err);
+        // console.log(err);
         reject({ msg: err, status: 500 });
       }
       if (result.length === 0)
@@ -76,7 +76,7 @@ const login = (body) => {
 
       bcrypt.compare(password, result[0].password, (err, isPasswordValid) => {
         if (err) {
-          console.log(err);
+          // console.log(err);
           reject({ msg: err, status: 500 });
         }
         if (!isPasswordValid)
@@ -90,7 +90,7 @@ const login = (body) => {
           issuer: process.env.ISSUER,
         };
         jwt.sign(payload, process.env.SECRET_KEY, options, (err, token) => {
-          console.log(err);
+          // console.log(err);
           if (err) return reject({ msg: err, status: 500 });
           resolve(token);
           console.log(token);
