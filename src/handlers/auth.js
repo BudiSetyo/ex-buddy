@@ -50,35 +50,33 @@ const register = async (req, res) => {
   });
 };
 
-const login = async (req, res) => {
-  const username = req.body.username || '';
-  const password = req.body.password || '';
+// const login = async (req, res) => {
+//   const username = req.body.username || '';
+//   const password = req.body.password || '';
 
-  // console.log({ username, password });
+//   // console.log({ username, password });
 
-  const usernameTaken = (await authModel.getUserByUsername(username)) || [];
+//   const usernameTaken = (await authModel.getUserByUsername(username)) || [];
 
-  if (usernameTaken.length < 1) {
-    res.status(500).send({
-      message: 'username does not exist',
-    });
-    return;
-  }
+//   if (usernameTaken.length < 1) {
+//     res.status(500).send({
+//       message: 'username does not exist',
+//     });
+//     return;
+//   }
 
-  const hash = usernameTaken[0].password;
-
-  bcrypt.compare(password, hash, (err, result) => {
-    if (result) {
-      writeResponse(res, null, 200, usernameTaken[0]);
-    } else if (hash !== password) {
-      res.status(500).send({
-        message: 'wrong password',
-      });
-    } else {
-      writeError(res, 500, err);
-    }
-  });
-};
+//   bcrypt.compare(password, usernameTaken[0].password, (err, passwordValid) => {
+//     if (passwordValid) {
+//       writeResponse(res, null, 200, usernameTaken[0]);
+//     } else if (!passwordValid) {
+//       res.status(500).send({
+//         message: 'wrong password',
+//       });
+//     } else {
+//       writeError(res, 500, err);
+//     }
+//   });
+// };
 
 const reset = async (req, res) => {
   const password = req.body.password || '';
@@ -113,6 +111,17 @@ const reset = async (req, res) => {
         writeError(res, 500, err);
       });
   });
+};
+
+const login = (req, res) => {
+  authModel
+    .login(req.body)
+    .then((result) => {
+      writeResponse(res, null, 200, { token: result });
+    })
+    .catch((err) => {
+      writeError(res, err.status, err.msg);
+    });
 };
 
 module.exports = {
