@@ -6,7 +6,7 @@ const updateProfile = (fullName, phoneNumber, id) => {
 
     connect.query(queryString, [fullName, phoneNumber, id], (err, result) => {
       if (err) {
-        console.log(err)
+        // console.log(err)
         reject(err);
       } else {
         resolve(result);
