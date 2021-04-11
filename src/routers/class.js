@@ -7,6 +7,7 @@ const Authorize = require('../middlewares/authorize');
 Router.get('/', Authorize.student, classHandler.getAllClass);
 Router.get('/:id', classHandler.getCLassById);
 Router.get('/myclass/:idUser', classHandler.getUserClass);
+Router.get('/paginate', classHandler.getAllClassWithPagination);
 
 // post
 Router.post('/', Authorize.teacher, classHandler.postCLass);

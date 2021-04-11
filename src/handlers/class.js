@@ -1,7 +1,11 @@
 const mysql = require('mysql');
 const allClassModel = require('../models/class');
 
-const { writeResponse, writeError } = require('../helpers/response');
+const {
+  writeResponse,
+  writeError,
+  writeResponsePaginated,
+} = require('../helpers/response');
 
 const getAllClass = async (req, res) => {
   const { search, category, level, pricing } = req.query;
@@ -107,9 +111,38 @@ const getUserClass = async (req, res) => {
     });
 };
 
+const getAllClassWithPagination = (req, res) => {
+  const { baseUrl, path, hostname, protocol } = req;
+
+  allClassModel
+    .getAllClassWithPagination()
+    .then((finalResult) => {
+      const { result, count, page, limit } = finalResult;
+      const totalPage = Math.ceil(count / limit);
+      const url =
+        protocol + '://' + hostname + ':' + process.env.PORT + baseUrl + path;
+      const prev = page === 1 ? null : url + `?page=${page - 1}&limit=${5}`;
+      const next =
+        page === totalPage ? null : url + `?page=${page + 1}&limit=${5}`;
+      const info = {
+        count,
+        page,
+        totalPage,
+        next,
+        prev,
+      };
+      writeResponsePaginated(res, 200, result, info);
+    })
+    .catch((err) => {
+      console.log(err);
+      writeError(res, 500, err);
+    });
+};
+
 module.exports = {
   getAllClass,
   getCLassById,
   postCLass,
   getUserClass,
+  getAllClassWithPagination,
 };

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Waktu pembuatan: 10 Apr 2021 pada 10.27
+-- Waktu pembuatan: 11 Apr 2021 pada 05.49
 -- Versi server: 10.4.17-MariaDB
 -- Versi PHP: 8.0.0
 
@@ -51,7 +51,7 @@ INSERT INTO `categories` (`id`, `category_name`) VALUES
 --
 
 CREATE TABLE `class` (
-  `id_class` int(11) NOT NULL,
+  `id` int(11) NOT NULL,
   `class_name` varchar(255) NOT NULL,
   `description` text NOT NULL,
   `day` int(11) NOT NULL,
@@ -66,7 +66,7 @@ CREATE TABLE `class` (
 -- Dumping data untuk tabel `class`
 --
 
-INSERT INTO `class` (`id_class`, `class_name`, `description`, `day`, `start_time`, `end_time`, `category`, `level`, `pricing`) VALUES
+INSERT INTO `class` (`id`, `class_name`, `description`, `day`, `start_time`, `end_time`, `category`, `level`, `pricing`) VALUES
 (1, 'Know more Javascript', 'JavaScript is a cross-platform, object-oriented scripting language used to make webpages interactive (e.g., having complex animations, clickable buttons, popup menus, etc.).', 0, '00:00:00', '00:00:00', 1, 1, 0),
 (2, 'HTML and CSS to code', 'HTML (the Hypertext Markup Language) and CSS (Cascading Style Sheets) are two of the core technologies for building Web pages.', 0, '00:00:00', '00:00:00', 1, 2, 10),
 (3, 'Indonesian war history', 'The military history of Indonesia includes the military history of the modern nation of Republic of Indonesia, as well as the military history of the states which preceded and formed it. It encompassed a kaleidoscope of conflicts spanning over a millennia.', 0, '00:00:00', '00:00:00', 2, 3, 50),
@@ -77,9 +77,7 @@ INSERT INTO `class` (`id_class`, `class_name`, `description`, `day`, `start_time
 (8, 'Business and Financial Modeling', 'Financial modeling is a representation in numbers of a company\'s operations in the past, present, and the forecasted future.', 0, '00:00:00', '00:00:00', 1, 1, 0),
 (9, 'Marketing in a Digital World', 'Marketing in a Digital World is one of the most popular courses on Coursera with over 250,000 Learners and is rated by Class Central as one of the Top 50 MOOCs of All Time (https://www.class-central.com/report/top-moocs/). The course was initially launched in 2015, and has been updated in April 2020.', 0, '00:00:00', '00:00:00', 1, 2, 10),
 (10, 'Social Psychology', 'Social psychology is the scientific study of how people\'s thoughts, feelings, beliefs, intentions and goals are constructed within a social context by the actual or imagined interactions with others.', 0, '00:00:00', '00:00:00', 6, 3, 50),
-(16, 'Front-end fundamentals', 'Learn the fundamentals of front end...', 0, '00:00:00', '00:00:00', 1, 1, 0),
-(17, 'html and css learning', 'react is ....', 0, '00:00:11', '00:00:13', 1, 1, 0),
-(18, 'html and css learning', 'react is ....', 0, '00:00:11', '00:00:13', 1, 1, 0);
+(16, 'Front-end fundamentals', 'Learn the fundamentals of front end...', 0, '00:00:00', '00:00:00', 1, 1, 0);
 
 -- --------------------------------------------------------
 
@@ -207,14 +205,7 @@ INSERT INTO `users` (`id`, `full_name`, `email`, `password`, `user_name`, `phone
 (35, 'bambang setyo budi', 'buddys@gmail.com', '$2b$10$DkLlcuuMgiFY1zJMXXssDuzvZ1jCj1ByFGxRK1h4GApBEHmEyvtbG', 'setyo', '081782944456', 'L', '2'),
 (36, '', 'meyla@gmail.com', '$2b$10$5Fgj4apjENjIEktAx11wyuFMH39I0OgTWrqn5/hFMuGPw31Lvn6ei', 'rauf', '', 'L', ''),
 (37, '', 'roboto@gmail.com', '$2b$10$iZEHV8qHVSSplIm40Ezfy.nv.b9pObwOj.o/wd3SmTY8lpah52kpG', 'roboto', '', 'L', ''),
-(38, '', 'gimangkuy@gmail.com', '$2b$10$pa3hBCNXEyrJjFFERvY/AeuOojXJt.L0x0vfGYOYxXvkw6HBOBlHm', 'gimangkuy', '', 'L', ''),
-(53, '', 'bambo@gmail.com', '$2b$10$iC/Be4.15TVhPG.iiwrKKeAh09Fx1vdI77t.tQQGLGMAXF5oZcl5i', 'bambo', '', 'L', ''),
-(54, '', 'bambangsetyo@gmail', '$2b$10$FhGiOeG4eppLJ/Pys3I0zu1h61yiiqjqscm7JomTehJYLtLRlzhUy', 'bambangsetyobudi', '', 'L', ''),
-(55, '', 'bamboo@gmail.com', '$2b$10$ueRMRyQV.92yC5VWu51X5ekNVybtYmdgYchpU1bv7ZXHwqfJpINdy', 'bamboodi', '', 'L', ''),
-(56, '', 'yoda@yoda.com', '$2b$10$Mn.DFc9mhnX946c1sACl7efscD7nI1qcdlxMbgERQ6Bqfa9TOYNTS', 'yoda', '', 'L', ''),
-(57, '', 'yodada@yoda.com', '$2b$10$yKFb6slq64YgPD9pNZI7N.kZOL6Y/a4oQN4tKq1zab6KBUWXh6BUu', 'yoda21', '', 'L', ''),
-(58, '', 'bamboodisa@gmail.com', '$2b$10$BsY/cXXI6TYQiaxgOBkh2u/XCQmuZ57iCZrmbokvcPb..fRHNzEnu', 'bamboodisa', '', 'L', ''),
-(59, '', 'meylalal@gmail.com', '$2b$10$fFRclX64NZM5HOulHjC/WOUN8SthxMLXhlm1glt97ZZ8mPlcCECMe', 'raufa', '', 'L', '');
+(38, '', 'gimangkuy@gmail.com', '$2b$10$pa3hBCNXEyrJjFFERvY/AeuOojXJt.L0x0vfGYOYxXvkw6HBOBlHm', 'gimangkuy', '', 'L', '');
 
 -- --------------------------------------------------------
 
@@ -227,7 +218,7 @@ CREATE TABLE `users_progress` (
   `id_user_class` int(11) NOT NULL,
   `id_sub_class` int(11) NOT NULL,
   `id_class` int(11) NOT NULL,
-  `score` int(11) NOT NULL
+  `score` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
@@ -236,19 +227,19 @@ CREATE TABLE `users_progress` (
 
 INSERT INTO `users_progress` (`id`, `id_user_class`, `id_sub_class`, `id_class`, `score`) VALUES
 (1, 11, 1, 16, 80),
-(2, 11, 2, 16, 0),
-(3, 11, 3, 16, 0),
-(4, 11, 4, 16, 0),
-(5, 11, 5, 16, 0),
-(6, 11, 6, 16, 0),
-(7, 11, 7, 16, 0),
-(8, 11, 8, 16, 0),
-(9, 11, 9, 16, 0),
-(10, 11, 10, 16, 0),
+(2, 11, 2, 16, NULL),
+(3, 11, 3, 16, NULL),
+(4, 11, 4, 16, NULL),
+(5, 11, 5, 16, NULL),
+(6, 11, 6, 16, NULL),
+(7, 11, 7, 16, NULL),
+(8, 11, 8, 16, NULL),
+(9, 11, 9, 16, NULL),
+(10, 11, 10, 16, NULL),
 (11, 12, 1, 16, 75),
-(12, 3, 12, 1, 0),
-(13, 3, 13, 1, 0),
-(14, 3, 14, 1, 0);
+(12, 3, 12, 1, NULL),
+(13, 3, 13, 1, NULL),
+(14, 3, 14, 1, NULL);
 
 --
 -- Indexes for dumped tables
@@ -264,7 +255,7 @@ ALTER TABLE `categories`
 -- Indeks untuk tabel `class`
 --
 ALTER TABLE `class`
-  ADD PRIMARY KEY (`id_class`);
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indeks untuk tabel `levels`
@@ -316,7 +307,7 @@ ALTER TABLE `categories`
 -- AUTO_INCREMENT untuk tabel `class`
 --
 ALTER TABLE `class`
-  MODIFY `id_class` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT untuk tabel `levels`
