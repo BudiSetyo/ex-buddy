@@ -97,37 +97,16 @@ const getClassUser = (idUser, searchValue) => {
   });
 };
 
-const getAllClassWithPagination = () => {
+const getClassPaginate = () => {
   return new Promise((resolve, reject) => {
     const queryString = `SELECT c.id, c.class_name, ca.category_name, c.description, l.level_name, c.pricing FROM class c JOIN categories ca ON c.category = ca.id JOIN levels l ON c.level = l.id`;
-    const paginate = `LIMIT ? OFFSET ?`;
-    const queryStringPaginate = queryString.concat(' ', paginate);
 
-    const limit = 5;
-    const page = 1;
-    const offset = (page - 1) * limit;
-
-    connect.query(queryStringPaginate, [limit, offset], (err, result) => {
+    connect.query(queryString, (err, result) => {
       if (err) {
-        console.log(err);
         reject(err);
+      } else {
+        resolve(result);
       }
-
-      const qsCount = `SELECT COUNT(*) AS count FROM class`;
-
-      connect.query(qsCount, (err, data) => {
-        if (err) return reject(err);
-
-        const { count } = data;
-
-        let finalResult = {
-          result,
-          count,
-          page,
-          limit,
-        };
-        resolve(finalResult);
-      });
     });
   });
 };
@@ -137,5 +116,5 @@ module.exports = {
   getClassById,
   postCLass,
   getClassUser,
-  getAllClassWithPagination,
+  getClassPaginate,
 };

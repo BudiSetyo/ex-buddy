@@ -2,12 +2,12 @@ const Router = require('express').Router();
 
 const classHandler = require('../handlers/class');
 const Authorize = require('../middlewares/authorize');
+const allClassModel = require('../models/class');
 
 // get
 Router.get('/', Authorize.student, classHandler.getAllClass);
 Router.get('/:id', classHandler.getCLassById);
 Router.get('/myclass/:idUser', classHandler.getUserClass);
-Router.get('/paginate', classHandler.getAllClassWithPagination);
 
 // post
 Router.post('/', Authorize.teacher, classHandler.postCLass);

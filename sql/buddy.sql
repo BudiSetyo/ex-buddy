@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Waktu pembuatan: 11 Apr 2021 pada 05.49
+-- Waktu pembuatan: 11 Apr 2021 pada 23.34
 -- Versi server: 10.4.17-MariaDB
 -- Versi PHP: 8.0.0
 
@@ -177,7 +177,9 @@ INSERT INTO `sub_class` (`id`, `sub_class_name`, `id_class`) VALUES
 (10, 'Final-term Exam', 16),
 (12, 'Javascript variable', 1),
 (13, 'Spread operator', 1),
-(14, 'Destructuring asignment', 1);
+(14, 'Destructuring asignment', 1),
+(15, 'FOR loop', 1),
+(16, 'While loop', 1);
 
 -- --------------------------------------------------------
 
@@ -331,7 +333,7 @@ ALTER TABLE `roles`
 -- AUTO_INCREMENT untuk tabel `sub_class`
 --
 ALTER TABLE `sub_class`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT untuk tabel `users`

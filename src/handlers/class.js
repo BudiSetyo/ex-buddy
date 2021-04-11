@@ -100,6 +100,8 @@ const getUserClass = async (req, res) => {
   const searchValue = `%${search || ''}%`;
   const idUser = req.params.idUser;
 
+  console.log('babi');
+
   allClassModel
     .getClassUser(idUser, searchValue)
     .then((result) => {
@@ -111,31 +113,19 @@ const getUserClass = async (req, res) => {
     });
 };
 
-const getAllClassWithPagination = (req, res) => {
-  const { baseUrl, path, hostname, protocol } = req;
-
+const getClass = async (req, res) => {
+  console.log('asuw');
   allClassModel
-    .getAllClassWithPagination()
-    .then((finalResult) => {
-      const { result, count, page, limit } = finalResult;
-      const totalPage = Math.ceil(count / limit);
-      const url =
-        protocol + '://' + hostname + ':' + process.env.PORT + baseUrl + path;
-      const prev = page === 1 ? null : url + `?page=${page - 1}&limit=${5}`;
-      const next =
-        page === totalPage ? null : url + `?page=${page + 1}&limit=${5}`;
-      const info = {
-        count,
-        page,
-        totalPage,
-        next,
-        prev,
-      };
-      writeResponsePaginated(res, 200, result, info);
+    .getClassPaginate()
+    .then((result) => {
+      res.status(200).send({
+        msg: 'babi',
+        result,
+      });
     })
     .catch((err) => {
       console.log(err);
-      writeError(res, 500, err);
+      res.status(500).send(err);
     });
 };
 
@@ -144,5 +134,5 @@ module.exports = {
   getCLassById,
   postCLass,
   getUserClass,
-  getAllClassWithPagination,
+  getClass,
 };
