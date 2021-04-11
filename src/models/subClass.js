@@ -11,6 +11,21 @@ const getSubClass = (id, course) => {
   });
 };
 
+const addSubClass = (subClassName, idClass) => {
+  return new Promise((resolve, reject) => {
+    const queryString = `INSERT INTO sub_class (sub_class_name, id_class) VALUES (?, ?)`;
+
+    connect.query(queryString, [subClassName, idClass], (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result);
+      }
+    });
+  });
+};
+
 module.exports = {
   getSubClass,
+  addSubClass,
 };

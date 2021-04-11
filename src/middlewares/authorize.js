@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const { writeError } = require('../helpers/response');
 
 const student = (req, res, next) => {
-  const token = req.header('x-acces-token').split(' ')[1];
+  const token = (req.header('x-acces-token') || '').split(' ')[1];
   console.log(token);
   const options = {
     issuer: process.env.ISSUER,

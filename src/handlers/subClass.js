@@ -18,6 +18,31 @@ const getSubClass = async (req, res) => {
     });
 };
 
+const addSubClass = (req, res) => {
+  const { subClassName, idClass } = req.body;
+
+  if (!subClassName || !idClass) {
+    res.status(500).send({
+      message: `some fields cannot be empty`,
+    });
+    return;
+  }
+
+  subClassModel
+    .addSubClass(subClassName, idClass)
+    .then((result) => {
+      res.status(200).send({
+        message: 'success',
+        result,
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).send(err);
+    });
+};
+
 module.exports = {
   getSubClass,
+  addSubClass,
 };
