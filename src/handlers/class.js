@@ -100,8 +100,6 @@ const getUserClass = async (req, res) => {
   const searchValue = `%${search || ''}%`;
   const idUser = req.params.idUser;
 
-  console.log('babi');
-
   allClassModel
     .getClassUser(idUser, searchValue)
     .then((result) => {
@@ -113,20 +111,17 @@ const getUserClass = async (req, res) => {
     });
 };
 
-const getClass = async (req, res) => {
-  console.log('asuw');
+const getClassPaginate = async (req, res) => {
+  const { baseurl } = req;
+  const { search, sort, order, limit, offset } = req.query;
+
+  const searchValue = `${search || ''}`;
+  const sortValue = sort.split('-') || null;
+
   allClassModel
-    .getClassPaginate()
-    .then((result) => {
-      res.status(200).send({
-        msg: 'babi',
-        result,
-      });
-    })
-    .catch((err) => {
-      console.log(err);
-      res.status(500).send(err);
-    });
+    .getClassPaginate(searchValue, sortValue, order, limit, offset)
+    .then(() => {})
+    .catch(() => {});
 };
 
 module.exports = {
@@ -134,5 +129,5 @@ module.exports = {
   getCLassById,
   postCLass,
   getUserClass,
-  getClass,
+  getClassPaginate,
 };

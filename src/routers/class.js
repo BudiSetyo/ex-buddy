@@ -2,7 +2,6 @@ const Router = require('express').Router();
 
 const classHandler = require('../handlers/class');
 const Authorize = require('../middlewares/authorize');
-const allClassModel = require('../models/class');
 
 // get
 Router.get('/', Authorize.student, classHandler.getAllClass);
