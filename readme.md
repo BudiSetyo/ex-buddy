@@ -1,7 +1,6 @@
 <h1 align="center"> Ex-Buddy Backend </h1>
 
-This is a simple Database Administrator application specially for backend only. Built with NodeJs using the ExpressJs Framework.
-Express.js is a web application framework for Node.js. [More about Express](https://en.wikipedia.org/wiki/Express.js)
+This is a simple backend that I created using node js and the express js framework. [More about Express](https://en.wikipedia.org/wiki/Express.js)
 
 ## Built With
 
