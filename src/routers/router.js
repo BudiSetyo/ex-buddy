@@ -11,8 +11,13 @@ Router.use('/profile', profile);
 Router.use('/subClass', subClass);
 
 Router.post('/upload', multerUploadImage.single('image'), (req, res) => {
-  const { file } = req;
-  const url = `/images/${file.filename}`;
+  const file = req.file || {};
+  let url = '';
+
+  if (file.filename) {
+    url = `/images/${file.filename}`;
+  }
+
   res.status(200).json({
     msg: 'Upload Success',
     file: req.file,

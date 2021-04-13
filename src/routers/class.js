@@ -2,13 +2,17 @@ const Router = require('express').Router();
 
 const classHandler = require('../handlers/class');
 const Authorize = require('../middlewares/authorize');
+const multerUploadImage = require('../middlewares/uploadImages');
 
-// get
 Router.get('/', Authorize.student, classHandler.getAllClass);
 Router.get('/:id', classHandler.getCLassById);
 Router.get('/myclass/:idUser', classHandler.getUserClass);
-
-// post
-Router.post('/', Authorize.teacher, classHandler.postCLass);
+// Router.get('/paginate', classHandler.getClassPaginate);
+Router.post(
+  '/',
+  Authorize.teacher,
+  multerUploadImage.single('image'),
+  classHandler.postCLass
+);
 
 module.exports = Router;

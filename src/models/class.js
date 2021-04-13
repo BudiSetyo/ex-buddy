@@ -1,27 +1,36 @@
 const connect = require('../database/connection');
 
-const getAllClass = (searchValue, category, level, pricingSort) => {
-  let queryString = `SELECT c.id, c.class_name, c.description, ca.category_name, l.level_name, c.pricing FROM class c INNER JOIN categories ca ON c.category = ca.id INNER JOIN levels l ON c.level = l.id WHERE c.class_name LIKE ?`;
+const getAllClass = (searchValue, sortBy, order, limitPage, offset) => {
+  let queryString = [
+    `SELECT c.id, c.class_name, c.description, ca.category_name, l.level_name, c.pricing FROM class c LEFT JOIN categories ca ON c.category = ca.id LEFT JOIN levels l ON c.level = l.id WHERE c.class_name LIKE ?`,
+  ];
 
   let paramData = [searchValue];
 
-  if (category) {
-    queryString += ` AND c.category=? `;
-    paramData = [...paramData, category];
+  if (sortBy && order) {
+    queryString.push('ORDER BY ? ?');
+    paramData.push(sortBy, order);
   }
 
-  if (level) {
-    queryString += ` AND c.level=? `;
-    paramData = [...paramData, level];
-  }
-
-  if (pricingSort) {
-    queryString += ` ORDER BY c.pricing ?`;
-    paramData = [...paramData, pricingSort];
-  }
+  queryString.push('LIMIT ? OFFSET ?');
+  paramData.push(limitPage, offset);
 
   return new Promise((resolve, reject) => {
-    connect.query(queryString, paramData, (err, result) => {
+    connect.query(queryString.join(' '), paramData, (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result);
+      }
+    });
+  });
+};
+
+const getCountClass = () => {
+  return new Promise((resolve, reject) => {
+    const queryString = `SELECT COUNT(id) AS "count" FROM class`;
+
+    connect.query(queryString, (err, result) => {
       if (err) {
         reject(err);
       } else {
@@ -53,10 +62,11 @@ const postCLass = (
   endtime,
   categories,
   level,
-  price
+  price,
+  url
 ) => {
   return new Promise((resolve, reject) => {
-    const queryString = `INSERT INTO class (class_name, description, day, start_time, end_time, category, level, pricing) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+    const queryString = `INSERT INTO class (class_name, description, day, start_time, end_time, category, level, pricing, class_img) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
     connect.query(
       queryString,
@@ -69,6 +79,7 @@ const postCLass = (
         categories,
         level,
         price,
+        url,
       ],
       (err, result) => {
         if (err) {
@@ -97,16 +108,40 @@ const getClassUser = (idUser, searchValue) => {
   });
 };
 
-const getClassPaginate = () => {
+const getClassPaginate = (searchValue) => {
   return new Promise((resolve, reject) => {
-    const queryString = `SELECT c.id, c.class_name, ca.category_name, c.description, l.level_name, c.pricing FROM class c JOIN categories ca ON c.category = ca.id JOIN levels l ON c.level = l.id`;
+    let queryString = `SELECT * FROM class c LEFT JOIN categories ca ON c.category = ca.id LEFT JOIN levels l ON c.level = l.id WHERE c.class_name LIKE ?`;
 
-    connect.query(queryString, (err, result) => {
+    let paramData = [searchValue];
+
+    // if (sortBy && order) {
+    //   queryString += ` ORDER BY ? ? `;
+    //   paramData = [...paramData, sortBy, order];
+    // }
+
+    // queryString += ` LIMIT ? OFFSET ? `;
+    // paramData = [...paramData, limitPage, offset];
+
+    // let total = 0;
+
+    console.log(queryString);
+
+    connect.query(queryString, paramData, (err, result) => {
       if (err) {
         reject(err);
       } else {
+        console.log(result);
         resolve(result);
       }
+
+      // const queryStringCount = `SELECT COUNT(id) AS total FROM class`;
+
+      // connect.query(queryStringCount, (errCount, resultCount) => {
+      //   console.log(resultCount);
+      //   if (errCount) return reject(errCount);
+      //   total = resultCount[0].total;
+      //   return resolve({ data: result, total });
+      // });
     });
   });
 };
@@ -117,4 +152,5 @@ module.exports = {
   postCLass,
   getClassUser,
   getClassPaginate,
+  getCountClass,
 };

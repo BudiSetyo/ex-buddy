@@ -25,7 +25,64 @@ const addSubClass = (subClassName, idClass) => {
   });
 };
 
+const isSubClassScored = (idUserClass, idSubClass, idClass) => {
+  return new Promise((resolve, reject) => {
+    const queryString = `SELECT score FROM users_progress WHERE id_user_class = ? AND id_sub_class = ? AND id_class = ?`;
+
+    connect.query(
+      queryString,
+      [idUserClass, idSubClass, idClass],
+      (err, result) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(result);
+        }
+      }
+    );
+  });
+};
+
+const addSubClassScore = (idUserClass, idSubClass, idClass, score) => {
+  return new Promise((resolve, reject) => {
+    const queryString = `INSERT INTO users_progress(id_user_class, id_sub_class, id_class, score) VALUES (?, ?, ?, ?)`;
+
+    connect.query(
+      queryString,
+      [idUserClass, idSubClass, idClass, score],
+      (err, result) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(result);
+        }
+      }
+    );
+  });
+};
+
+const updateSubClassScore = (idUserClass, idSubClass, idClass, score) => {
+  return new Promise((resolve, reject) => {
+    const queryString = `UPDATE users_progress SET score = ? WHERE id_user_class = ? AND id_sub_class = ? AND id_class = ?`;
+
+    connect.query(
+      queryString,
+      [score, idUserClass, idSubClass, idClass],
+      (err, result) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(result);
+        }
+      }
+    );
+  });
+};
+
 module.exports = {
   getSubClass,
   addSubClass,
+  isSubClassScored,
+  addSubClassScore,
+  updateSubClassScore,
 };

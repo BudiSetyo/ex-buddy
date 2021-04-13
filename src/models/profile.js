@@ -1,17 +1,20 @@
 const connect = require('../database/connection');
 
-const updateProfile = (fullName, phoneNumber, id) => {
+const updateProfile = (fullName, phoneNumber, url, id) => {
   return new Promise((resolve, reject) => {
-    const queryString = `UPDATE users SET full_name=?, phone_number=? WHERE id=?`;
+    const queryString = `UPDATE users SET full_name=?, phone_number=?, profile_img=? WHERE id=?`;
 
-    connect.query(queryString, [fullName, phoneNumber, id], (err, result) => {
-      if (err) {
-        // console.log(err)
-        reject(err);
-      } else {
-        resolve(result);
+    connect.query(
+      queryString,
+      [fullName, phoneNumber, url, id],
+      (err, result) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(result);
+        }
       }
-    });
+    );
   });
 };
 

@@ -1,22 +1,66 @@
 const mysql = require('mysql');
 const allClassModel = require('../models/class');
 
-const {
-  writeResponse,
-  writeError,
-  writeResponsePaginated,
-} = require('../helpers/response');
+const { writeResponse, writeError } = require('../helpers/response');
 
 const getAllClass = async (req, res) => {
-  const { search, category, level, pricing } = req.query;
+  const { baseUrl, path, hostname, protocol } = req;
+  const { search, sort, limit, page } = req.query;
   const searchValue = `%${search || ''}%`;
-  const pricingSort = pricing ? mysql.raw(pricing) : '';
+  const sortValue = sort?.split('-') || null;
+  let sortBy = null;
+  let order = null;
+
+  if (sortValue) {
+    switch (sortValue[0].toLowerCase()) {
+      case 'category':
+        sortBy = mysql.raw('c.category');
+        break;
+      case 'level':
+        sortBy = mysql.raw('c.level');
+        break;
+      case 'pricing':
+        sortBy = mysql.raw('c.pricing');
+        break;
+      default:
+        sortBy = null;
+    }
+
+    order =
+      sortValue[1].toLowerCase() === 'az'
+        ? mysql.raw('ASC')
+        : mysql.raw('DESC');
+  }
+
+  const limitPage = Number(limit) || 5;
+  const pageNumber = Number(page) || 1;
+  const offset = (pageNumber - 1) * limitPage;
+
+  const count = (await allClassModel.getCountClass()) || [];
+
+  const url =
+    protocol + '://' + hostname + ':' + process.env.PORT + baseUrl + path;
 
   allClassModel
-    .getAllClass(searchValue, category, level, pricingSort)
+    .getAllClass(searchValue, sortBy, order, limitPage, offset)
     .then((result) => {
+      const countTotal = count[0].count;
+      const totalPage = Math.ceil(countTotal / limitPage);
+      const prev =
+        pageNumber === 1
+          ? null
+          : url + `?page=${pageNumber - 1}&limit=${limitPage || 5}`;
+
+      const next =
+        pageNumber === totalPage
+          ? null
+          : url + `?page=${pageNumber + 1}&limit=${limitPage || 5}`;
       res.status(200).send({
         message: 'success',
+        count: countTotal,
+        totalPage: totalPage,
+        prev: prev,
+        next: next,
         result,
       });
     })
@@ -53,6 +97,13 @@ const postCLass = async (req, res) => {
     price,
   } = req.body;
 
+  const file = req.file || {};
+  let url = '';
+
+  if (file.filename) {
+    url = `/images/${file.filename}`;
+  }
+
   if (
     !classname ||
     !description ||
@@ -78,12 +129,15 @@ const postCLass = async (req, res) => {
       endtime,
       categories,
       level,
-      price
+      price,
+      url
     )
     .then((result) => {
       res.status(200).send({
         message: 'success',
         result,
+        file: req.file,
+        url,
       });
     })
     .catch((err) => {
@@ -112,16 +166,52 @@ const getUserClass = async (req, res) => {
 };
 
 const getClassPaginate = async (req, res) => {
-  const { baseurl } = req;
-  const { search, sort, order, limit, offset } = req.query;
+  // const { baseurl } = req;
+  const { search, sort, page, limit } = req.query || '';
+  // const sortValue = sort.split('-') || null;
+  // let sortBy = null;
+  // let order = null;
 
-  const searchValue = `${search || ''}`;
-  const sortValue = sort.split('-') || null;
+  // if (sortValue) {
+  //   switch (sortValue[0].toLowerCase()) {
+  //     case 'category':
+  //       sortBy = mysql.raw('ca.id');
+  //       break;
+  //     case 'level':
+  //       sortBy = mysql.raw('l.id');
+  //       break;
+  //     case 'pricing':
+  //       sortBy = mysql.raw('c.pricing');
+  //       break;
+  //     default:
+  //       sortBy = null;
+  //       break;
+  //   }
+
+  //   order =
+  //     sortValue[1].toLowerCase() === 'az'
+  //       ? mysql.raw('ASC')
+  //       : mysql.raw('DESC');
+  // }
+
+  // const searchValue = `${search || ''}`;
+  // const pageNumber = Number(page) || 1;
+  // const limitPage = Number(limit) || 5;
+  // const offset = (pageNumber - 1) * limitPage;
 
   allClassModel
-    .getClassPaginate(searchValue, sortValue, order, limit, offset)
-    .then(() => {})
-    .catch(() => {});
+    .getClassPaginate(searchValue) //, sortBy, order, offset, limitPage)
+    .then((result) => {
+      console.log('ping');
+      res.status(200).send({
+        msg: 'success',
+        result,
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).err;
+    });
 };
 
 module.exports = {
