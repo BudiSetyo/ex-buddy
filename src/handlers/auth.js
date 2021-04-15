@@ -113,11 +113,23 @@ const reset = async (req, res) => {
   });
 };
 
-const login = (req, res) => {
+const login = async (req, res) => {
+  const username = req.body.username || '';
+  const password = req.body.password || '';
+
+  const usernameTaken = (await authModel.getUserByUsername(username)) || [];
+
+  if (usernameTaken.length < 1) {
+    res.status(500).send({
+      message: 'username does not exist',
+    });
+    return;
+  }
+
   authModel
-    .login(req.body)
+    .login(username, password)
     .then((result) => {
-      console.log(result);
+      // console.log(result);
       writeResponse(res, null, 200, { token: result });
     })
     .catch((err) => {

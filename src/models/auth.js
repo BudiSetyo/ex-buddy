@@ -60,9 +60,8 @@ const updatePasswordByEmail = (password, email) => {
   });
 };
 
-const login = (body) => {
+const login = (username, password) => {
   return new Promise((resolve, reject) => {
-    const { username, password } = body;
     const queryString = `SELECT * FROM users WHERE user_name=?`;
 
     connect.query(queryString, username, (err, result) => {
@@ -93,7 +92,7 @@ const login = (body) => {
           // console.log(err);
           if (err) return reject({ msg: err, status: 500 });
           resolve(token);
-          console.log(token);
+          // console.log(token);
         });
       });
     });

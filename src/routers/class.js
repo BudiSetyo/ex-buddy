@@ -7,7 +7,12 @@ const multerUploadImage = require('../middlewares/uploadImages');
 Router.get('/', Authorize.student, classHandler.getAllClass);
 Router.get('/:id', classHandler.getCLassById);
 Router.get('/myclass/:idUser', classHandler.getUserClass);
-// Router.get('/paginate', classHandler.getClassPaginate);
+Router.get('/ping', (req, res) => {
+  console.log('ping');
+  res.status(200).send({
+    msg: 'yolo',
+  });
+});
 Router.post(
   '/',
   Authorize.teacher,

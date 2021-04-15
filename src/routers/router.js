@@ -3,26 +3,28 @@ const auth = require('./auth');
 const classRoute = require('./class');
 const profile = require('./profile');
 const subClass = require('./subClass');
-const multerUploadImage = require('../middlewares/uploadImages');
+const course = require('./course');
+// const multerUploadImage = require('../middlewares/uploadImages');
 
 Router.use('/auth', auth);
 Router.use('/class', classRoute);
 Router.use('/profile', profile);
 Router.use('/subClass', subClass);
+Router.use('/course', course);
 
-Router.post('/upload', multerUploadImage.single('image'), (req, res) => {
-  const file = req.file || {};
-  let url = '';
+// Router.post('/upload', multerUploadImage.single('image'), (req, res) => {
+//   const file = req.file || {};
+//   let url = '';
 
-  if (file.filename) {
-    url = `/images/${file.filename}`;
-  }
+//   if (file.filename) {
+//     url = `/images/${file.filename}`;
+//   }
 
-  res.status(200).json({
-    msg: 'Upload Success',
-    file: req.file,
-    url,
-  });
-});
+//   res.status(200).json({
+//     msg: 'Upload Success',
+//     file: req.file,
+//     url,
+//   });
+// });
 
 module.exports = Router;

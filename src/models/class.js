@@ -108,49 +108,48 @@ const getClassUser = (idUser, searchValue) => {
   });
 };
 
-const getClassPaginate = (searchValue) => {
-  return new Promise((resolve, reject) => {
-    let queryString = `SELECT * FROM class c LEFT JOIN categories ca ON c.category = ca.id LEFT JOIN levels l ON c.level = l.id WHERE c.class_name LIKE ?`;
+// const getClassPaginate = (searchValue) => {
+//   return new Promise((resolve, reject) => {
+//     let queryString = `SELECT * FROM class c LEFT JOIN categories ca ON c.category = ca.id LEFT JOIN levels l ON c.level = l.id WHERE c.class_name LIKE ?`;
 
-    let paramData = [searchValue];
+//     let paramData = [searchValue];
 
-    // if (sortBy && order) {
-    //   queryString += ` ORDER BY ? ? `;
-    //   paramData = [...paramData, sortBy, order];
-    // }
+//     // if (sortBy && order) {
+//     //   queryString += ` ORDER BY ? ? `;
+//     //   paramData = [...paramData, sortBy, order];
+//     // }
 
-    // queryString += ` LIMIT ? OFFSET ? `;
-    // paramData = [...paramData, limitPage, offset];
+//     // queryString += ` LIMIT ? OFFSET ? `;
+//     // paramData = [...paramData, limitPage, offset];
 
-    // let total = 0;
+//     // let total = 0;
 
-    console.log(queryString);
+//     console.log(queryString);
 
-    connect.query(queryString, paramData, (err, result) => {
-      if (err) {
-        reject(err);
-      } else {
-        console.log(result);
-        resolve(result);
-      }
+//     connect.query(queryString, paramData, (err, result) => {
+//       if (err) {
+//         reject(err);
+//       } else {
+//         console.log(result);
+//         resolve(result);
+//       }
 
-      // const queryStringCount = `SELECT COUNT(id) AS total FROM class`;
+//       // const queryStringCount = `SELECT COUNT(id) AS total FROM class`;
 
-      // connect.query(queryStringCount, (errCount, resultCount) => {
-      //   console.log(resultCount);
-      //   if (errCount) return reject(errCount);
-      //   total = resultCount[0].total;
-      //   return resolve({ data: result, total });
-      // });
-    });
-  });
-};
+//       // connect.query(queryStringCount, (errCount, resultCount) => {
+//       //   console.log(resultCount);
+//       //   if (errCount) return reject(errCount);
+//       //   total = resultCount[0].total;
+//       //   return resolve({ data: result, total });
+//       // });
+//     });
+//   });
+// };
 
 module.exports = {
   getAllClass,
   getClassById,
   postCLass,
   getClassUser,
-  getClassPaginate,
   getCountClass,
 };
