@@ -165,55 +165,6 @@ const getUserClass = async (req, res) => {
     });
 };
 
-// const getClassPaginate = async (req, res) => {
-//   const { baseurl } = req;
-//   const { search, sort, page, limit } = req.query || '';
-//   const sortValue = sort.split('-') || null;
-//   let sortBy = null;
-//   let order = null;
-
-//   if (sortValue) {
-//     switch (sortValue[0].toLowerCase()) {
-//       case 'category':
-//         sortBy = mysql.raw('ca.id');
-//         break;
-//       case 'level':
-//         sortBy = mysql.raw('l.id');
-//         break;
-//       case 'pricing':
-//         sortBy = mysql.raw('c.pricing');
-//         break;
-//       default:
-//         sortBy = null;
-//         break;
-//     }
-
-//     order =
-//       sortValue[1].toLowerCase() === 'az'
-//         ? mysql.raw('ASC')
-//         : mysql.raw('DESC');
-//   }
-
-//   const searchValue = `${search || ''}`;
-//   const pageNumber = Number(page) || 1;
-//   const limitPage = Number(limit) || 5;
-//   const offset = (pageNumber - 1) * limitPage;
-
-//   allClassModel
-//     .getClassPaginate(searchValue) //, sortBy, order, offset, limitPage)
-//     .then((result) => {
-//       console.log('ping');
-//       res.status(200).send({
-//         msg: 'success',
-//         result,
-//       });
-//     })
-//     .catch((err) => {
-//       console.log(err);
-//       res.status(500).err;
-//     });
-// };
-
 module.exports = {
   getAllClass,
   getCLassById,

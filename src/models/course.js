@@ -12,7 +12,7 @@ const getAllCourse = (
 ) => {
   return new Promise((resolve, reject) => {
     let queryString = [
-      `SELECT c.id, c.class_name, c.description, ca.category_name, l.level_name, c.pricing FROM class c LEFT JOIN categories ca ON c.category = ca.id LEFT JOIN levels l ON c.level = l.id WHERE c.class_name LIKE ?`,
+      `SELECT c.id, c.class_name AS 'class name', c.description, ca.category_name AS category, l.level_name AS level, c.pricing FROM class c LEFT JOIN categories ca ON c.category = ca.id LEFT JOIN levels l ON c.level = l.id WHERE c.class_name LIKE ?`,
     ];
 
     let paramData = [searchValue];
@@ -83,20 +83,6 @@ const getAllCourse = (
   });
 };
 
-const getCountCourse = () => {
-  return new Promise((resolve, reject) => {
-    const queryString = `SELECT COUNT(id) AS "count" FROM class`;
-
-    connect.query(queryString, (err, result) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(result);
-      }
-    });
-  });
-};
-
 const getCourseById = (id) => {
   const queryString = `SELECT * FROM class WHERE id=?`;
 
@@ -112,14 +98,14 @@ const getCourseById = (id) => {
 };
 
 const postCourse = (
-  classname,
+  className,
   description,
   day,
-  starttime,
-  endtime,
-  categories,
+  startTime,
+  endTime,
+  category,
   level,
-  price,
+  pricing,
   url
 ) => {
   return new Promise((resolve, reject) => {
@@ -128,14 +114,14 @@ const postCourse = (
     connect.query(
       queryString,
       [
-        classname,
+        className,
         description,
         day,
-        starttime,
-        endtime,
-        categories,
+        startTime,
+        endTime,
+        category,
         level,
-        price,
+        pricing,
         url,
       ],
       (err, result) => {
@@ -146,6 +132,66 @@ const postCourse = (
         }
       }
     );
+  });
+};
+
+const updateCourse = (id, day, startTime, endTime, pricing) => {
+  return new Promise((resolve, reject) => {
+    const queryString = `UPDATE class c SET day = ?, start_time = ?, end_time = ?, pricing = ? WHERE c.id = ?`;
+
+    connect.query(
+      queryString,
+      [day, startTime, endTime, pricing, id],
+      (err, result) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(result);
+        }
+      }
+    );
+  });
+};
+
+const deleteCourse = (id) => {
+  return new Promise((resolve, reject) => {
+    const queryString = `DELETE FROM class WHERE id = ?`;
+
+    connect.query(queryString, id, (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result);
+      }
+    });
+  });
+};
+
+const registerCourse = (idUser, idClass) => {
+  return new Promise((resolve, reject) => {
+    const queryString = `INSERT INTO my_class (id_user, id_class) VALUES (?, ?)`;
+
+    connect.query(queryString, [idUser, idClass], (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result);
+      }
+    });
+  });
+};
+
+const isRegisterCourse = (idUser, idClass) => {
+  return new Promise((resolve, reject) => {
+    const queryString = `SELECT * FROM my_class mc WHERE mc.id_user = ? AND mc.id_class = ?`;
+
+    connect.query(queryString, [idUser, idClass], (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result);
+      }
+    });
   });
 };
 
@@ -248,8 +294,11 @@ module.exports = {
   getAllCourse,
   getCourseById,
   postCourse,
+  updateCourse,
+  deleteCourse,
+  registerCourse,
+  isRegisterCourse,
   getCourseUser,
-  getCountCourse,
   getSubCourse,
   addSubCourse,
   isSubCourseScored,

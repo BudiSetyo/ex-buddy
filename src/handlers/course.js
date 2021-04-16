@@ -7,12 +7,19 @@ const getAllCourse = (req, res) => {
     req.query || '';
 
   const searchValue = `%${search || ''}%`;
-  const sortValue = sort?.split('-') || null;
+  let sortValue = sort?.split('-') || null;
   let sortBy = null;
   let order = null;
 
+  if (!sort) {
+    sortValue = 'id-az';
+  }
+
   if (sortValue) {
     switch (sortValue[0].toLowerCase()) {
+      case 'id':
+        sortBy = mysql.raw('c.id');
+        break;
       case 'category':
         sortBy = mysql.raw('c.category');
         break;
@@ -78,6 +85,122 @@ const getAllCourse = (req, res) => {
     });
 };
 
+const postCourse = (req, res) => {
+  const {
+    className,
+    description,
+    day,
+    startTime,
+    endTime,
+    category,
+    level,
+    pricing,
+  } = req.body || '';
+
+  const file = req.file || {};
+  let url = '';
+
+  if (file.filename) {
+    url = `/images/${file.filename}`;
+  }
+
+  courseModel
+    .postCourse(
+      className,
+      description,
+      day,
+      startTime,
+      endTime,
+      category,
+      level,
+      pricing,
+      url
+    )
+    .then((result) => {
+      res.status(200).send({
+        message: 'success',
+        file: req.file,
+        url,
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).send({
+        message: 'error',
+        err,
+      });
+    });
+};
+
+const updateCourse = (req, res) => {
+  const id = req.params.id;
+  const { day, startTime, endTime, pricing } = req.body || '';
+
+  courseModel
+    .updateCourse(id, day, startTime, endTime, pricing)
+    .then((result) => {
+      res.status(200).send({
+        message: 'success',
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).send({
+        message: 'error',
+        err,
+      });
+    });
+};
+
+const deleteCourse = (req, res) => {
+  const id = req.params.id;
+
+  courseModel
+    .deleteCourse(id)
+    .then((result) => {
+      res.status(200).send({
+        message: 'success',
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).send({
+        message: 'error',
+        err,
+      });
+    });
+};
+
+const registerCourse = async (req, res) => {
+  const { idUser, idClass } = req.query;
+
+  const isRegister =
+    (await courseModel.isRegisterCourse(idUser, idClass)) || [];
+
+  if (isRegister.length > 0) {
+    res.status(500).send({
+      message: 'you have enrolled in this class',
+    });
+    return;
+  }
+
+  courseModel
+    .registerCourse(idUser, idClass)
+    .then((result) => {
+      res.status(200).send({
+        message: 'success',
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).send(err);
+    });
+};
+
 module.exports = {
   getAllCourse,
+  postCourse,
+  updateCourse,
+  deleteCourse,
+  registerCourse,
 };
