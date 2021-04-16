@@ -31,6 +31,7 @@ const getAllCourse = (req, res) => {
         break;
       default:
         sortBy = null;
+        break;
     }
 
     order =
@@ -197,10 +198,50 @@ const registerCourse = async (req, res) => {
     });
 };
 
+const getCourseUser = (req, res) => {
+  const { baseUrl, path, hostname, protocol } = req;
+  const { id } = req.params.id;
+  const { search, sort, limit, page } = req.query || '';
+
+  const searchValue = `%${search || ''}%`;
+  let sortValue = sort?.split('-') || null;
+  let sortBy = null;
+  let order = null;
+
+  if (!sort) {
+    sortValue = 'id-az';
+  }
+
+  if (sortValue) {
+    switch (sortValue[0].toLowerCase()) {
+      case 'id':
+        sortBy = mysql.raw('c.id');
+        break;
+      case 'category':
+        sortBy = mysql.raw('c.category');
+        break;
+      default:
+        sortBy = null;
+        break;
+    }
+
+    order =
+      sortValue[1].toLowerCase() === 'az'
+        ? mysql.raw('ASC')
+        : mysql.raw('DESC');
+  }
+
+  courseModel
+    .getCourseUser(searchValue, sortBy, order, limit, page)
+    .then(() => {})
+    .catch(() => {});
+};
+
 module.exports = {
   getAllCourse,
   postCourse,
   updateCourse,
   deleteCourse,
   registerCourse,
+  getCourseUser,
 };

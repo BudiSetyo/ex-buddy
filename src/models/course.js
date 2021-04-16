@@ -195,10 +195,24 @@ const isRegisterCourse = (idUser, idClass) => {
   });
 };
 
-const getCourseUser = (idUser, searchValue) => {
-  let queryString = `SELECT * FROM my_class INNER JOIN class ON my_class.id_class = class.id INNER JOIN levels ON class.level = levels.id INNER JOIN categories ON class.category = categories.id WHERE id_user=? AND class_name LIKE ?`;
+const getCourseUser = (id, searchValue, sortBy, order, limit, page) => {
+  let queryString = [
+    `SELECT * FROM my_class INNER JOIN class ON my_class.id_class = class.id INNER JOIN levels ON class.level = levels.id INNER JOIN categories ON class.category = categories.id WHERE id_user=? AND class_name LIKE ?`,
+  ];
 
-  let paramData = [idUser, searchValue];
+  let paramData = [id, searchValue];
+
+  if (sortBy && order) {
+    queryString.push(`ORDER BY ? ?`);
+    paramData.push(sortBy, order);
+  }
+
+  const limitPage = Number(limit) || 5;
+  const pageNumber = Number(page) || 1;
+  const offset = (pageNumber - 1) * limitPage;
+
+  queryString.push('LIMIT ? OFFSET ?');
+  paramData.push(limitPage, offset);
 
   return new Promise((resolve, reject) => {
     connect.query(queryString, paramData, (err, result) => {
