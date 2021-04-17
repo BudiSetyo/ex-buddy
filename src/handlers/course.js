@@ -200,7 +200,7 @@ const registerCourse = async (req, res) => {
 
 const getCourseUser = (req, res) => {
   const { baseUrl, path, hostname, protocol } = req;
-  const { id } = req.params.id;
+  const id = req.params.id;
   const { search, sort, limit, page } = req.query || '';
 
   const searchValue = `%${search || ''}%`;
@@ -232,9 +232,128 @@ const getCourseUser = (req, res) => {
   }
 
   courseModel
-    .getCourseUser(searchValue, sortBy, order, limit, page)
-    .then(() => {})
-    .catch(() => {});
+    .getCourseUser(id, searchValue, sortBy, order, limit, page)
+    .then((finalResult) => {
+      const { result, count, limitPage, pageNumber } = finalResult;
+      const totalPage = Math.ceil(count / limitPage);
+      const url =
+        protocol + '://' + hostname + ':' + process.env.PORT + baseUrl + path;
+      const prev =
+        pageNumber === 1
+          ? null
+          : url + `?page=${pageNumber - 1}&limit=${limitPage || 5}`;
+
+      const next =
+        pageNumber === totalPage
+          ? null
+          : url + `?page=${pageNumber + 1}&limit=${limitPage || 5}`;
+
+      const info = {
+        count,
+        totalPage,
+        page: pageNumber,
+        next,
+        prev,
+        result,
+      };
+
+      res.status(200).send({
+        message: 'success',
+        info,
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).send(err);
+    });
+};
+
+const getSubCourse = (req, res) => {
+  const idUser = req.params.id;
+  const idCourse = req.query.idCourse || '';
+
+  courseModel
+    .getSubCourse(idUser, idCourse)
+    .then((result) => {
+      res.status(200).send({
+        message: 'success',
+        result,
+      });
+    })
+    .catch((err) => {
+      console.log(errr);
+      res.status(500).send(err);
+    });
+};
+
+const addSubCourse = (req, res) => {
+  const { subCourseName, idCourse } = req.body || '';
+
+  courseModel
+    .addSubCourse(subCourseName, idCourse)
+    .then((result) => {
+      res.status(200).send({
+        message: 'success',
+      });
+    })
+    .catch((err) => {
+      res.status(500).send(err);
+    });
+};
+
+const addSubCourseScore = async (req, res) => {
+  const { idUser, idSubCourse, idCourse } = req.query;
+  const { score } = req.body || '';
+
+  const isSubCourseScored =
+    (await courseModel.isSubCourseScored(idUser, idSubCourse, idCourse)) || [];
+
+  if (isSubCourseScored.length > 0) {
+    res.status(500).send({
+      message: 'score has been added',
+    });
+    return;
+  }
+
+  courseModel
+    .addSubCourseScore(idUser, idSubCourse, idCourse, score)
+    .then((result) => {
+      res.status(200).send({
+        message: 'success',
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).send(err);
+    });
+};
+
+const updateSubCourseScore = async (req, res) => {
+  const { idUser, idSubCourse, idCourse } = req.query;
+  const { score } = req.body;
+
+  const isSubCourse =
+    (await courseModel.isSubCourseScored(idUser, idSubCourse, idCourse)) || [];
+
+  if (isSubCourse.length < 1) {
+    res.status(500).send({
+      message: 'Sub course not found',
+    });
+    return;
+  }
+
+  courseModel
+    .updateSubCourseScore(score, idUser, idSubCourse, idCourse)
+    .then((result) => {
+      res.status(200).send({
+        message: 'success',
+        result,
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).send(err);
+    });
 };
 
 module.exports = {
@@ -244,4 +363,8 @@ module.exports = {
   deleteCourse,
   registerCourse,
   getCourseUser,
+  getSubCourse,
+  addSubCourse,
+  addSubCourseScore,
+  updateSubCourseScore,
 };

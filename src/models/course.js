@@ -196,26 +196,62 @@ const isRegisterCourse = (idUser, idClass) => {
 };
 
 const getCourseUser = (id, searchValue, sortBy, order, limit, page) => {
-  let queryString = [
-    `SELECT * FROM my_class INNER JOIN class ON my_class.id_class = class.id INNER JOIN levels ON class.level = levels.id INNER JOIN categories ON class.category = categories.id WHERE id_user=? AND class_name LIKE ?`,
-  ];
-
-  let paramData = [id, searchValue];
-
-  if (sortBy && order) {
-    queryString.push(`ORDER BY ? ?`);
-    paramData.push(sortBy, order);
-  }
-
-  const limitPage = Number(limit) || 5;
-  const pageNumber = Number(page) || 1;
-  const offset = (pageNumber - 1) * limitPage;
-
-  queryString.push('LIMIT ? OFFSET ?');
-  paramData.push(limitPage, offset);
-
   return new Promise((resolve, reject) => {
-    connect.query(queryString, paramData, (err, result) => {
+    let queryString = [
+      `SELECT c.id, c.class_name AS 'class name', ca.category_name AS category, c.description FROM my_class mc INNER JOIN class c ON mc.id_class = c.id INNER JOIN categories ca ON c.category = ca.id WHERE mc.id_user = ? AND c.class_name like ?`,
+    ];
+
+    let paramData = [id, searchValue];
+
+    if (sortBy && order) {
+      queryString.push(`ORDER BY ? ?`);
+      paramData.push(sortBy, order);
+    }
+
+    const limitPage = Number(limit) || 5;
+    const pageNumber = Number(page) || 1;
+    const offset = (pageNumber - 1) * limitPage;
+
+    queryString.push('LIMIT ? OFFSET ?');
+    paramData.push(limitPage, offset);
+
+    connect.query(queryString.join(' '), paramData, (err, result) => {
+      console.log(paramData);
+      console.log(queryString.join(' '));
+      console.log(err);
+      if (err) return reject(err);
+
+      let qsCount = [
+        `SELECT COUNT(*) as count FROM my_class mc INNER JOIN class c ON mc.id_class = c.id INNER JOIN categories ca ON c.category = ca.id WHERE mc.id_user = ? AND c.class_name like ?`,
+      ];
+
+      if (sortBy && order) {
+        qsCount.push(`ORDER BY ? ?`);
+      }
+
+      connect.query(qsCount.join(' '), paramData, (err, data) => {
+        console.log(err);
+        if (err) return reject(err);
+
+        const { count } = data[0];
+
+        let finalResult = {
+          result,
+          count,
+          limitPage,
+          pageNumber,
+        };
+        resolve(finalResult);
+      });
+    });
+  });
+};
+
+const getSubCourse = (idUser, idCourse) => {
+  return new Promise((resolve, reject) => {
+    const queryString = `SELECT sub_class_name AS 'sub class', score, day, start_time AS 'start time', end_time AS 'end time' FROM users_progress up LEFT JOIN sub_class sc ON up.id_sub_class = sc.id LEFT JOIN class c ON up.id_class = c.id LEFT JOIN users u ON up.id_user = u.id WHERE u.id=? AND c.id=?`;
+
+    connect.query(queryString, [idUser, idCourse], (err, result) => {
       if (err) {
         reject(err);
       } else {
@@ -225,22 +261,11 @@ const getCourseUser = (id, searchValue, sortBy, order, limit, page) => {
   });
 };
 
-const getSubCourse = (id, course) => {
-  return new Promise((resolve, reject) => {
-    const queryString = `SELECT sub_class_name AS SubClass, score AS Score, day AS Day, start_time AS StartTime, end_time AS EndTime FROM users_progress LEFT JOIN sub_class ON users_progress.id_sub_class = sub_class.id LEFT JOIN class ON users_progress.id_class = class.id LEFT JOIN users ON users_progress.id_user = users.id WHERE users_progress.id_user=? AND users_progress.id_class=?`;
-
-    connect.query(queryString, [id, course], (err, result) => {
-      if (err) reject(err);
-      resolve(result);
-    });
-  });
-};
-
-const addSubCourse = (subClassName, idClass) => {
+const addSubCourse = (subCourseName, idCourse) => {
   return new Promise((resolve, reject) => {
     const queryString = `INSERT INTO sub_class (sub_class_name, id_class) VALUES (?, ?)`;
 
-    connect.query(queryString, [subClassName, idClass], (err, result) => {
+    connect.query(queryString, [subCourseName, idCourse], (err, result) => {
       if (err) {
         reject(err);
       } else {
@@ -250,13 +275,13 @@ const addSubCourse = (subClassName, idClass) => {
   });
 };
 
-const isSubCourseScored = (idUserClass, idSubClass, idClass) => {
+const isSubCourseScored = (idUser, idSubCourse, idCourse) => {
   return new Promise((resolve, reject) => {
     const queryString = `SELECT score FROM users_progress WHERE id_user=? AND id_sub_class=? AND id_class=?`;
 
     connect.query(
       queryString,
-      [idUserClass, idSubClass, idClass],
+      [idUser, idSubCourse, idCourse],
       (err, result) => {
         if (err) {
           reject(err);
@@ -268,13 +293,13 @@ const isSubCourseScored = (idUserClass, idSubClass, idClass) => {
   });
 };
 
-const addSubCourseScore = (idUserClass, idSubClass, idClass, score) => {
+const addSubCourseScore = (idUser, idSubCourse, idCourse, score) => {
   return new Promise((resolve, reject) => {
     const queryString = `INSERT INTO users_progress(id_user, id_sub_class, id_class, score) VALUES (?, ?, ?, ?)`;
 
     connect.query(
       queryString,
-      [idUserClass, idSubClass, idClass, score],
+      [idUser, idSubCourse, idCourse, score],
       (err, result) => {
         if (err) {
           reject(err);
@@ -286,15 +311,16 @@ const addSubCourseScore = (idUserClass, idSubClass, idClass, score) => {
   });
 };
 
-const updateSubCourseScore = (idUserClass, idSubClass, idClass, score) => {
+const updateSubCourseScore = (score, idUser, idSubCourse, idCourse) => {
   return new Promise((resolve, reject) => {
     const queryString = `UPDATE users_progress SET score=? WHERE id_user=? AND id_sub_class=? AND id_class=?`;
 
     connect.query(
       queryString,
-      [score, idUserClass, idSubClass, idClass],
+      [score, idUser, idSubCourse, idCourse],
       (err, result) => {
         if (err) {
+          console.log(err);
           reject(err);
         } else {
           resolve(result);

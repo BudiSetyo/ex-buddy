@@ -1,15 +1,11 @@
 const Router = require('express').Router();
 const auth = require('./auth');
-const classRoute = require('./class');
 const profile = require('./profile');
-const subClass = require('./subClass');
 const course = require('./course');
 // const multerUploadImage = require('../middlewares/uploadImages');
 
 Router.use('/auth', auth);
-Router.use('/class', classRoute);
 Router.use('/profile', profile);
-Router.use('/subClass', subClass);
 Router.use('/course', course);
 
 // Router.post('/upload', multerUploadImage.single('image'), (req, res) => {
