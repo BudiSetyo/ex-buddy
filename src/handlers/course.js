@@ -54,17 +54,54 @@ const getAllCourse = (req, res) => {
     .then((finalResult) => {
       const { result, count, limitPage, pageNumber } = finalResult;
       const totalPage = Math.ceil(count / limitPage);
-      const url =
-        protocol + '://' + hostname + ':' + process.env.PORT + baseUrl + path;
-      const prev =
-        pageNumber === 1
-          ? null
-          : url + `?page=${pageNumber - 1}&limit=${limitPage || 5}`;
 
-      const next =
-        pageNumber === totalPage
-          ? null
-          : url + `?page=${pageNumber + 1}&limit=${limitPage || 5}`;
+      let url =
+        protocol + '://' + hostname + ':' + process.env.PORT + baseUrl + path;
+
+      let prev = null;
+      let next = null;
+
+      if (category || level || pricing) {
+        prev =
+          pageNumber === 1
+            ? null
+            : (url +=
+                `?category=${category}&page=${pageNumber - 1}&limit=${
+                  limitPage || 5
+                }` ||
+                `?level=${level}&page=${pageNumber - 1}&limit=${
+                  limitPage || 5
+                }` ||
+                `?pricing=${pricing}&page=${pageNumber - 1}&limit=${
+                  limitPage || 5
+                }`);
+
+        next =
+          pageNumber === totalPage
+            ? null
+            : (url +=
+                `?category=${category}&page=${pageNumber + 1}&limit=${
+                  limitPage || 5
+                }` ||
+                `?level=${level}&page=${pageNumber + 1}&limit=${
+                  limitPage || 5
+                }` ||
+                `?pricing=${pricing}&page=${pageNumber + 1}&limit=${
+                  limitPage || 5
+                }`);
+      } else {
+        prev =
+          pageNumber === 1
+            ? null
+            : url + `?page=${pageNumber - 1}&limit=${limitPage || 5}`;
+
+        next =
+          pageNumber === totalPage
+            ? null
+            : url + `?page=${pageNumber + 1}&limit=${limitPage || 5}`;
+      }
+
+      console.log(url);
 
       const info = {
         count,
