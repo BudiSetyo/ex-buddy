@@ -12,7 +12,7 @@ const getAllCourse = (
 ) => {
   return new Promise((resolve, reject) => {
     let queryString = [
-      `SELECT c.id, c.class_name AS 'class name', c.description, ca.category_name AS category, l.level_name AS level, c.pricing FROM class c LEFT JOIN categories ca ON c.category = ca.id LEFT JOIN levels l ON c.level = l.id WHERE c.class_name LIKE ?`,
+      `SELECT c.id, c.class_name AS className, c.description, ca.category_name AS category, l.level_name AS level, c.pricing FROM class c LEFT JOIN categories ca ON c.category = ca.id LEFT JOIN levels l ON c.level = l.id WHERE c.class_name LIKE ?`,
     ];
 
     let paramData = [searchValue];
@@ -198,7 +198,7 @@ const isRegisterCourse = (idUser, idClass) => {
 const getCourseUser = (id, searchValue, sortBy, order, limit, page) => {
   return new Promise((resolve, reject) => {
     let queryString = [
-      `SELECT c.id, c.class_name AS 'class name', ca.category_name AS category, c.description FROM my_class mc INNER JOIN class c ON mc.id_class = c.id INNER JOIN categories ca ON c.category = ca.id WHERE mc.id_user = ? AND c.class_name like ?`,
+      `SELECT c.id, c.class_name AS className, ca.category_name AS category, c.description FROM my_class mc INNER JOIN class c ON mc.id_class = c.id INNER JOIN categories ca ON c.category = ca.id WHERE mc.id_user = ? AND c.class_name like ?`,
     ];
 
     let paramData = [id, searchValue];
@@ -208,7 +208,7 @@ const getCourseUser = (id, searchValue, sortBy, order, limit, page) => {
       paramData.push(sortBy, order);
     }
 
-    const limitPage = Number(limit) || 5;
+    const limitPage = Number(limit) || 3;
     const pageNumber = Number(page) || 1;
     const offset = (pageNumber - 1) * limitPage;
 

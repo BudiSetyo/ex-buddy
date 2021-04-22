@@ -2,9 +2,9 @@ const authModel = require('../models/auth');
 
 const { writeResponse, writeError } = require('../helpers/response');
 
+const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
-// const { get } = require('../routers/auth');
 
 const register = async (req, res) => {
   const username = req.body.username || '';
@@ -129,11 +129,41 @@ const login = async (req, res) => {
   authModel
     .login(username, password)
     .then((result) => {
-      // console.log(result);
-      writeResponse(res, null, 200, { token: result });
+      console.log(result);
+      bcrypt.compare(password, result[0].password, (err, passwordValid) => {
+        if (err)
+          return res.status(500).send({
+            message: err,
+          });
+
+        if (!passwordValid) {
+          res.status(500).send({
+            message: 'wrong password',
+          });
+        }
+
+        if (passwordValid) {
+          const { user_name, role } = result[0];
+          const payload = { user_name, role };
+          const options = {
+            expiresIn: process.env.EXPIRE,
+            issuer: process.env.ISSUER,
+          };
+          jwt.sign(payload, process.env.SECRET_KEY, options, (err, token) => {
+            if (err) return res.status(500).send(err);
+
+            res.status(200).send({
+              message: 'success',
+              username: user_name,
+              role,
+              token,
+            });
+          });
+        }
+      });
     })
     .catch((err) => {
-      writeError(res, err.status, err.msg);
+      writeError(res, 500, err);
     });
 };
 
