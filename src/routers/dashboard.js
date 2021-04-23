@@ -1,6 +1,7 @@
 const Router = require('express').Router();
 const dashboardHandler = require('../handlers/dashboard');
 
-Router.get('/:id', dashboardHandler.getSchedule);
+Router.get('/', dashboardHandler.getAllSchedule);
+Router.get('/:id', dashboardHandler.getScheduleUser);
 
 module.exports = Router;
