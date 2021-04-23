@@ -61,11 +61,14 @@ const getAllCourse = (req, res) => {
       let prev = null;
       let next = null;
 
-      if (category || level || pricing) {
+      if (searchValue || category || level || pricing) {
         prev =
           pageNumber === 1
             ? null
             : (url +=
+                `?search=${searchValue}&page=${pageNumber - 1}&limit=${
+                  limitPage || 5
+                }` ||
                 `?category=${category}&page=${pageNumber - 1}&limit=${
                   limitPage || 5
                 }` ||
@@ -80,6 +83,9 @@ const getAllCourse = (req, res) => {
           pageNumber === totalPage
             ? null
             : (url +=
+                `?search=${searchValue}&page=${pageNumber + 1}&limit=${
+                  limitPage || 5
+                }` ||
                 `?category=${category}&page=${pageNumber + 1}&limit=${
                   limitPage || 5
                 }` ||
