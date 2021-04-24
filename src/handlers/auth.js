@@ -50,34 +50,6 @@ const register = async (req, res) => {
   });
 };
 
-// const login = async (req, res) => {
-//   const username = req.body.username || '';
-//   const password = req.body.password || '';
-
-//   // console.log({ username, password });
-
-//   const usernameTaken = (await authModel.getUserByUsername(username)) || [];
-
-//   if (usernameTaken.length < 1) {
-//     res.status(500).send({
-//       message: 'username does not exist',
-//     });
-//     return;
-//   }
-
-//   bcrypt.compare(password, usernameTaken[0].password, (err, passwordValid) => {
-//     if (passwordValid) {
-//       writeResponse(res, null, 200, usernameTaken[0]);
-//     } else if (!passwordValid) {
-//       res.status(500).send({
-//         message: 'wrong password',
-//       });
-//     } else {
-//       writeError(res, 500, err);
-//     }
-//   });
-// };
-
 const reset = async (req, res) => {
   const password = req.body.password || '';
   const email = req.body.email || '';
