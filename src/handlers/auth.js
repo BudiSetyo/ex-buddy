@@ -1,4 +1,5 @@
 const authModel = require('../models/auth');
+const client = require('../database/redis');
 
 const { writeResponse, writeError } = require('../helpers/response');
 
@@ -101,7 +102,7 @@ const login = async (req, res) => {
   authModel
     .login(username, password)
     .then((result) => {
-      console.log(result);
+      // console.log(result);
       bcrypt.compare(password, result[0].password, (err, passwordValid) => {
         if (err)
           return res.status(500).send({
@@ -115,8 +116,8 @@ const login = async (req, res) => {
         }
 
         if (passwordValid) {
-          const { user_name, role } = result[0];
-          const payload = { user_name, role };
+          const { id, user_name, role } = result[0];
+          const payload = { id, user_name, role };
           const options = {
             expiresIn: process.env.EXPIRE,
             issuer: process.env.ISSUER,
@@ -139,8 +140,23 @@ const login = async (req, res) => {
     });
 };
 
+const logout = (req, res) => {
+  const { token } = req;
+
+  client.setex(`blacklist:${token}`, 36, true, (err) => {
+    if (err) {
+      res.status(500).send(err);
+    }
+
+    res.status(200).send({
+      message: 'logout succes',
+    });
+  });
+};
+
 module.exports = {
   register,
   login,
   reset,
+  logout,
 };
