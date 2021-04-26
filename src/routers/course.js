@@ -2,10 +2,16 @@ const Router = require('express').Router();
 
 const courseHandler = require('../handlers/course');
 const Authorize = require('../middlewares/authorize');
+const Authenticate = require('../middlewares/authenticate');
 const multerUploadImage = require('../middlewares/uploadImages');
 
 Router.get('/', courseHandler.getAllCourse);
-Router.get('/:id/userCourse/', Authorize.student, courseHandler.getCourseUser);
+Router.get(
+  '/:id/userCourse/',
+  Authorize.student,
+  Authenticate.authenticateToken,
+  courseHandler.getCourseUser
+);
 Router.get('/:id/subCourse/', courseHandler.getSubCourse);
 
 Router.post('/', multerUploadImage.single('image'), courseHandler.postCourse);

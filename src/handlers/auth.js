@@ -5,6 +5,7 @@ const { writeResponse, writeError } = require('../helpers/response');
 
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+const { json } = require('express');
 const saltRounds = 10;
 
 const register = async (req, res) => {
@@ -141,15 +142,29 @@ const login = async (req, res) => {
 };
 
 const logout = (req, res) => {
-  const { token } = req;
+  const { userId, token } = req;
 
-  client.setex(`blacklist:${token}`, 36, true, (err) => {
+  client.get(userId, (err, data) => {
     if (err) {
       res.status(500).send(err);
     }
 
-    res.status(200).send({
-      message: 'logout succes',
+    if (data) {
+      const parseData = JSON.parse(data);
+      parseData[userId].push(token);
+      client.setex(userId, 3600, JSON.stringify(parseData));
+      return res.status(200).send({
+        message: 'logout success',
+      });
+    }
+
+    const blacklistData = {
+      [userId]: [token],
+    };
+
+    client.setex(userId, 3600, JSON.stringify(blacklistData));
+    return res.status(200).send({
+      message: 'logout success',
     });
   });
 };

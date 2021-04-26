@@ -1,6 +1,5 @@
 const jwt = require('jsonwebtoken');
 const { writeError } = require('../helpers/response');
-const client = require('../database/redis');
 
 const student = (req, res, next) => {
   const token = (req.header('x-acces-token') || '').split(' ')[1];
@@ -14,7 +13,12 @@ const student = (req, res, next) => {
       return writeError(res, 401, err);
     if (err && err.name === 'JsonWebTokenError')
       return writeError(res, 400, err);
-    if (decodeToken.role === '1') return next();
+    if (decodeToken.role === '1') {
+      req.userId = decodeToken.id;
+      req.tokenExp = decodeToken.exp;
+      req.token = token;
+      return next();
+    }
 
     writeError(res, 403, { msg: 'Forbidden' });
   });
@@ -31,7 +35,12 @@ const teacher = (req, res, next) => {
       return writeError(res, 401, err);
     if (err && err.name === 'JsonWebTokenError')
       return writeError(res, 400, err);
-    if (decodeToken.role === '2') return next();
+    if (decodeToken.role === '2') {
+      req.userId = decodeToken.id;
+      req.tokenExp = decodeToken.exp;
+      req.token = token;
+      return next();
+    }
 
     writeError(res, 403, { msg: 'Forbidden' });
   });
@@ -54,22 +63,10 @@ const verifyToken = (req, res, next) => {
       });
     }
 
-    client.get(`blacklist:${token}`, (err, blacklisted) => {
-      if (err) {
-        res.status(500).send(err);
-      }
-
-      if (blacklisted) {
-        res.status(401).send({
-          message: 'token blacklisted',
-        });
-      }
-
-      req.userId = decodeToken.id;
-      req.tokenExp = decodeToken.exp;
-      req.token = token;
-      next();
-    });
+    req.userId = decodeToken.id;
+    req.tokenExp = decodeToken.exp;
+    req.token = token;
+    next();
   });
 };
 

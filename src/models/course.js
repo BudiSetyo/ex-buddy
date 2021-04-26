@@ -216,9 +216,9 @@ const getCourseUser = (id, searchValue, sortBy, order, limit, page) => {
     paramData.push(limitPage, offset);
 
     connect.query(queryString.join(' '), paramData, (err, result) => {
-      console.log(paramData);
-      console.log(queryString.join(' '));
-      console.log(err);
+      // console.log(paramData);
+      // console.log(queryString.join(' '));
+      // console.log(err);
       if (err) return reject(err);
 
       let qsCount = [
