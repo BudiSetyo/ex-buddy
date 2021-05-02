@@ -5,7 +5,6 @@ const { writeResponse, writeError } = require('../helpers/response');
 
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-const { json } = require('express');
 const saltRounds = 10;
 
 const register = async (req, res) => {
