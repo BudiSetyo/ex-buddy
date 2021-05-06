@@ -87,57 +87,108 @@ const reset = async (req, res) => {
 };
 
 const login = async (req, res) => {
-  const username = req.body.username || '';
+  const user = req.body.user || '';
   const password = req.body.password || '';
 
-  const usernameTaken = (await authModel.getUserByUsername(username)) || [];
+  const validateEmail = (email) => {
+    const re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(email);
+  };
 
-  if (usernameTaken.length < 1) {
-    res.status(500).send({
-      message: 'username does not exist',
-    });
-    return;
+  const loginWith = validateEmail(user);
+
+  if (loginWith === true) {
+    const emailTaken = (await authModel.getUserByEmail(user)) || [];
+
+    if (emailTaken.length < 1) {
+      return writeResponse(res, null, 404, 'User not found');
+    }
+
+    authModel
+      .getUserByEmail(user)
+      .then((result) => {
+        bcrypt.compare(password, result[0].password, (err, passwordValid) => {
+          if (err)
+            return res.status(500).send({
+              message: err,
+            });
+
+          if (!passwordValid) {
+            res.status(500).send({
+              message: 'wrong password',
+            });
+          }
+
+          if (passwordValid) {
+            const { id, user_name, role } = result[0];
+            const payload = { id, username: user_name, role };
+            const options = {
+              expiresIn: process.env.EXPIRE,
+              issuer: process.env.ISSUER,
+            };
+            jwt.sign(payload, process.env.SECRET_KEY, options, (err, token) => {
+              if (err) return res.status(500).send(err);
+
+              res.status(200).send({
+                message: 'success',
+                user: payload,
+                token,
+              });
+            });
+          }
+        });
+      })
+      .catch((err) => {
+        return writeError(res, 500, err);
+      });
   }
 
-  authModel
-    .login(username, password)
-    .then((result) => {
-      // console.log(result);
-      bcrypt.compare(password, result[0].password, (err, passwordValid) => {
-        if (err)
-          return res.status(500).send({
-            message: err,
-          });
+  if (loginWith === false) {
+    const userTaken = (await authModel.getUserByUsername(user)) || [];
 
-        if (!passwordValid) {
-          res.status(500).send({
-            message: 'wrong password',
-          });
-        }
+    if (userTaken.length < 1) {
+      return writeResponse(res, null, 404, 'User not found');
+    }
 
-        if (passwordValid) {
-          const { id, user_name, role } = result[0];
-          const payload = { id, user_name, role };
-          const options = {
-            expiresIn: process.env.EXPIRE,
-            issuer: process.env.ISSUER,
-          };
-          jwt.sign(payload, process.env.SECRET_KEY, options, (err, token) => {
-            if (err) return res.status(500).send(err);
-
-            res.status(200).send({
-              message: 'success',
-              username: user_name,
-              role,
-              token,
+    authModel
+      .getUserByUsername(user)
+      .then((result) => {
+        bcrypt.compare(password, result[0].password, (err, passwordValid) => {
+          if (err)
+            return res.status(500).send({
+              message: err,
             });
-          });
-        }
+
+          if (!passwordValid) {
+            res.status(500).send({
+              message: 'wrong password',
+            });
+          }
+
+          if (passwordValid) {
+            const { id, user_name, role } = result[0];
+            const payload = { id, username: user_name, role };
+            const options = {
+              expiresIn: process.env.EXPIRE,
+              issuer: process.env.ISSUER,
+            };
+            jwt.sign(payload, process.env.SECRET_KEY, options, (err, token) => {
+              if (err) return res.status(500).send(err);
+
+              res.status(200).send({
+                message: 'success',
+                user: payload,
+                token,
+              });
+            });
+          }
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+        return writeError(res, 500, err);
       });
-    })
-    .catch((err) => {
-      writeError(res, 500, err);
-    });
+  }
 };
 
 const logout = (req, res) => {

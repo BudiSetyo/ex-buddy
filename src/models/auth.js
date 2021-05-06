@@ -57,22 +57,9 @@ const updatePasswordByEmail = (password, email) => {
   });
 };
 
-const login = (username) => {
-  return new Promise((resolve, reject) => {
-    const queryString = 'SELECT * FROM users WHERE user_name=?';
-
-    connect.query(queryString, username, (err, result) => {
-      if (err) return reject(err);
-
-      resolve(result);
-    });
-  });
-};
-
 module.exports = {
   register,
   getUserByUsername,
   getUserByEmail,
   updatePasswordByEmail,
-  login,
 };
