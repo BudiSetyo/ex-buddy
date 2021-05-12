@@ -57,9 +57,57 @@ const updatePasswordByEmail = (password, email) => {
   });
 };
 
+const updateOtp = (otp, expired, email) => {
+  console.log('otp = ' + otp);
+  return new Promise((resolve, reject) => {
+    const queryString =
+      'UPDATE users SET otp = ?, otp_expired = ? WHERE email = ?';
+
+    connect.query(queryString, [otp, expired, email], (err, result) => {
+      if (err) {
+        reject(err);
+      }
+      resolve(result);
+    });
+  });
+};
+
+const checkOtp = (otp, email) => {
+  return new Promise((resolve, reject) => {
+    const queryString =
+      'SELECT otp_expired FROM users WHERE otp = ? AND  email = ?';
+
+    connect.query(queryString, [otp, email], (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result);
+      }
+    });
+  });
+};
+
+const newPassword = (otp, email, password) => {
+  return new Promise((resolve, reject) => {
+    const queryString =
+      'UPDATE users SET password = ?, otp = null WHERE email = ? AND otp = ?';
+
+    connect.query(queryString, [password, email, otp], (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result);
+      }
+    });
+  });
+};
+
 module.exports = {
   register,
   getUserByUsername,
   getUserByEmail,
   updatePasswordByEmail,
+  updateOtp,
+  checkOtp,
+  newPassword,
 };
