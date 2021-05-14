@@ -188,9 +188,10 @@ const sendOtp = async (req, res) => {
   try {
     const { email } = req.body;
 
-    const emailTaken = await authModel.getUserByEmail(email);
+    const emailTaken = (await authModel.getUserByEmail(email)) || [];
+    // console.log(emailTaken);
 
-    if (!emailTaken) {
+    if (emailTaken.length < 1) {
       return res.status(404).send('User does not exist');
     }
 
@@ -214,7 +215,7 @@ const otpVerif = async (req, res) => {
 
     if (otp.length < 4) {
       res.status(402).send({
-        message: 'Invalid token',
+        message: 'Invalid otp',
       });
     }
 
@@ -229,7 +230,7 @@ const otpVerif = async (req, res) => {
       return writeResponse(res, null, 200, 'Please input your new password');
     }
   } catch (err) {
-    console.log(err);
+    // console.log(err);
     return writeError(res, 500, err);
   }
 };
