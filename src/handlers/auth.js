@@ -14,7 +14,7 @@ const register = async (req, res) => {
 
   if (!username || !email || !password) {
     res.status(500).send({
-      message: `some fields cannot be empty`,
+      message: `Some fields cannot be empty`,
     });
     return;
   }
@@ -42,7 +42,7 @@ const register = async (req, res) => {
       .register(username, email, hash)
       .then(() => {
         res.status(200).send({
-          message: 'success',
+          message: 'Success',
         });
       })
       .catch((err) => {
@@ -192,7 +192,9 @@ const sendOtp = async (req, res) => {
     // console.log(emailTaken);
 
     if (emailTaken.length < 1) {
-      return res.status(404).send('User does not exist');
+      return res.status(404).send({
+        message: 'User does not exist',
+      });
     }
 
     const otp = Math.floor(Math.random() * 9000) + 1000;
@@ -220,7 +222,9 @@ const otpVerif = async (req, res) => {
     }
 
     const expired = await authModel.checkOtp(otp, email);
-    // console.log(expired[0]);
+    if (expired.length < 1) {
+      return writeResponse(res, null, 410, 'Otp code is expired');
+    }
 
     if (expired) {
       if (new Date(expired[0].otp_expired) < new Date()) {
