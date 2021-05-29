@@ -9,4 +9,8 @@ Router.patch(
   profileHandler.updateProfile
 );
 
+Router.patch('/pass/:id', profileHandler.updatePassword);
+
+Router.get('/:id', profileHandler.getProfile);
+
 module.exports = Router;

@@ -35,8 +35,16 @@ const writeResponsePaginated = (res, status, result, info) => {
   res.status(status).json(response);
 };
 
+const response = (res, status, message, data = {}) => {
+  res.status(status).json({
+    message: message || 'Success',
+    ...data,
+  });
+};
+
 module.exports = {
   writeResponse,
   writeError,
   writeResponsePaginated,
+  response,
 };

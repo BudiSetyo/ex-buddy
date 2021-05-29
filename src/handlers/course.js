@@ -107,7 +107,7 @@ const getAllCourse = (req, res) => {
             : url + `?page=${pageNumber + 1}&limit=${limitPage || 5}`;
       }
 
-      console.log(url);
+      // console.log(url);
 
       const info = {
         count,
@@ -130,6 +130,7 @@ const getAllCourse = (req, res) => {
 };
 
 const postCourse = (req, res) => {
+  const { idFasilitator } = req.params;
   const {
     className,
     description,
@@ -150,6 +151,7 @@ const postCourse = (req, res) => {
 
   courseModel
     .postCourse(
+      idFasilitator,
       className,
       description,
       day,
@@ -216,10 +218,10 @@ const deleteCourse = (req, res) => {
 };
 
 const registerCourse = async (req, res) => {
-  const { idUser, idClass } = req.query;
+  const { id } = req.params;
+  const { idClass } = req.query;
 
-  const isRegister =
-    (await courseModel.isRegisterCourse(idUser, idClass)) || [];
+  const isRegister = (await courseModel.isRegisterCourse(id, idClass)) || [];
 
   if (isRegister.length > 0) {
     res.status(500).send({
@@ -229,7 +231,7 @@ const registerCourse = async (req, res) => {
   }
 
   courseModel
-    .registerCourse(idUser, idClass)
+    .registerCourse(id, idClass)
     .then((result) => {
       res.status(200).send({
         message: 'success',
@@ -394,6 +396,69 @@ const updateSubCourseScore = async (req, res) => {
       });
     })
     .catch((err) => {
+      // console.log(err);
+      res.status(500).send(err);
+    });
+};
+
+const getCourseFasilitator = (req, res) => {
+  const { baseUrl, path, hostname, protocol } = req;
+  const { id } = req.params;
+  const { limit, page } = req.query;
+
+  courseModel
+    .getCourseFasilitator(id, limit, page)
+    .then((finalResult) => {
+      const { result, count, limitPage, pageNumber } = finalResult;
+      const totalPage = Math.ceil(count / limitPage);
+
+      let url =
+        protocol + '://' + hostname + ':' + process.env.PORT + baseUrl + path;
+
+      let prev = null;
+      let next = null;
+
+      prev =
+        pageNumber === 1
+          ? null
+          : (url += `?page=${pageNumber - 1}&limit=${limit || 3}`);
+
+      next =
+        pageNumber === totalPage
+          ? null
+          : (url += `?page=${pageNumber + 1}&limit=${limit || 3}`);
+
+      const info = {
+        count,
+        totalPage,
+        page: pageNumber,
+        next,
+        prev,
+        result,
+      };
+
+      return res.status(200).send({
+        message: 'success',
+        info,
+      });
+    })
+    .catch((err) => {
+      res.status(500).send(err);
+    });
+};
+
+const getCourseById = (req, res) => {
+  const { id } = req.params;
+
+  courseModel
+    .getCourseById(id)
+    .then((result) => {
+      res.status(200).send({
+        message: 'Success',
+        result,
+      });
+    })
+    .catch((err) => {
       console.log(err);
       res.status(500).send(err);
     });
@@ -410,4 +475,6 @@ module.exports = {
   addSubCourse,
   addSubCourseScore,
   updateSubCourseScore,
+  getCourseFasilitator,
+  getCourseById,
 };

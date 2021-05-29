@@ -84,7 +84,7 @@ const getAllCourse = (
 };
 
 const getCourseById = (id) => {
-  const queryString = `SELECT * FROM class WHERE id=?`;
+  const queryString = `SELECT c.class_name AS classname, c.description, ca.category_name AS category, l.level_name AS level, c.pricing FROM class c LEFT JOIN levels l ON c.level = l.id LEFT JOIN categories ca ON c.category = ca.id WHERE c.id=?`;
 
   return new Promise((resolve, reject) => {
     connect.query(queryString, [id], (err, result) => {
@@ -98,6 +98,7 @@ const getCourseById = (id) => {
 };
 
 const postCourse = (
+  idFasilitator,
   className,
   description,
   day,
@@ -109,11 +110,12 @@ const postCourse = (
   url
 ) => {
   return new Promise((resolve, reject) => {
-    const queryString = `INSERT INTO class (class_name, description, day, start_time, end_time, category, level, pricing, class_img) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+    const queryString = `INSERT INTO class (id_fasilitator, class_name, description, day, start_time, end_time, category, level, pricing, class_img) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
     connect.query(
       queryString,
       [
+        idFasilitator,
         className,
         description,
         day,
@@ -167,11 +169,11 @@ const deleteCourse = (id) => {
   });
 };
 
-const registerCourse = (idUser, idClass) => {
+const registerCourse = (id, idClass) => {
   return new Promise((resolve, reject) => {
     const queryString = `INSERT INTO my_class (id_user, id_class) VALUES (?, ?)`;
 
-    connect.query(queryString, [idUser, idClass], (err, result) => {
+    connect.query(queryString, [id, idClass], (err, result) => {
       if (err) {
         reject(err);
       } else {
@@ -320,13 +322,52 @@ const updateSubCourseScore = (score, idUser, idSubCourse, idCourse) => {
       [score, idUser, idSubCourse, idCourse],
       (err, result) => {
         if (err) {
-          console.log(err);
+          // console.log(err);
           reject(err);
         } else {
           resolve(result);
         }
       }
     );
+  });
+};
+
+const getCourseFasilitator = (id, limit, page) => {
+  return new Promise((resolve, reject) => {
+    let queryString = [
+      'SELECT c.id, c.class_name AS classname, COUNT(mc.id_user) AS students FROM class c LEFT JOIN my_class mc ON c.id = mc.id_class WHERE c.id_fasilitator = ? GROUP BY c.class_name',
+    ];
+
+    let paramData = [id];
+
+    const limitPage = Number(limit) || 3;
+    const pageNumber = Number(page) || 1;
+    const offset = (pageNumber - 1) * limitPage;
+
+    queryString.push('LIMIT ? OFFSET ?');
+    paramData.push(limitPage, offset);
+
+    connect.query(queryString.join(' '), paramData, (err, result) => {
+      if (err) return reject(err);
+
+      const queryCount =
+        'SELECT COUNT(*) AS count FROM class c LEFT JOIN my_class mc ON c.id = mc.id_class WHERE c.id_fasilitator = ? GROUP BY c.class_name';
+
+      connect.query(queryCount, paramData, (err, data) => {
+        if (err) return reject(err);
+
+        console.log(data.length);
+        const count = data.length;
+
+        let finalResult = {
+          result,
+          count,
+          limitPage,
+          pageNumber,
+        };
+        resolve(finalResult);
+      });
+    });
   });
 };
 
@@ -344,4 +385,5 @@ module.exports = {
   isSubCourseScored,
   addSubCourseScore,
   updateSubCourseScore,
+  getCourseFasilitator,
 };
