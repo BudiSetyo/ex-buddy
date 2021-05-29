@@ -1,7 +1,7 @@
 const authModel = require('../models/auth');
 const client = require('../database/redis');
 
-const { writeResponse, writeError, response } = require('../helpers/response');
+const { response } = require('../helpers/response');
 
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
@@ -73,12 +73,10 @@ const register = async (req, res) => {
     authModel
       .register(username, email, hash)
       .then(() => {
-        res.status(200).send({
-          message: 'Success',
-        });
+        return response(res, 200, 'Login success', null);
       })
       .catch((err) => {
-        writeError(res, 500, err);
+        return response(res, 500, err, null);
       });
   });
 };
@@ -203,16 +201,14 @@ const logout = (req, res) => {
 
   client.get(userId, (err, data) => {
     if (err) {
-      res.status(500).send(err);
+      return response(res, 500, err, null);
     }
 
     if (data) {
       const parseData = JSON.parse(data);
       parseData[userId].push(token);
       client.setex(userId, 3600, JSON.stringify(parseData));
-      return res.status(200).send({
-        message: 'logout success',
-      });
+      return response(res, 200, 'Logout success', null);
     }
 
     const blacklistData = {
@@ -220,9 +216,7 @@ const logout = (req, res) => {
     };
 
     client.setex(userId, 3600, JSON.stringify(blacklistData));
-    return res.status(200).send({
-      message: 'logout success',
-    });
+    return response(res, 200, 'Logout success', null);
   });
 };
 
@@ -230,13 +224,14 @@ const sendOtp = async (req, res) => {
   try {
     const { email } = req.body;
 
+    if (!validateEmail(email)) {
+      return response(res, 400, 'Email is not valid', null);
+    }
+
     const emailTaken = (await authModel.getUserByEmail(email)) || [];
-    // console.log(emailTaken);
 
     if (emailTaken.length < 1) {
-      return res.status(404).send({
-        message: 'User does not exist',
-      });
+      return response(res, 404, 'User does not exist', null);
     }
 
     const otp = Math.floor(Math.random() * 9000) + 1000;
@@ -244,12 +239,9 @@ const sendOtp = async (req, res) => {
 
     await authModel.updateOtp(otp, expired, email);
 
-    return res.status(200).send({
-      message: 'Otp already sended',
-    });
+    return response(res, 200, 'Otp already sended');
   } catch (err) {
-    console.log(err);
-    return res.status(500).send(err);
+    return response(res, 500, err, null);
   }
 };
 
@@ -257,27 +249,29 @@ const otpVerif = async (req, res) => {
   try {
     const { otp, email } = req.body;
 
+    if (!validateEmail(email)) {
+      return response(res, 400, 'Email is not valid', null);
+    }
+
     if (otp.length < 4) {
-      res.status(402).send({
-        message: 'Invalid otp',
-      });
+      return response(res, 402, 'Invalid otp', null);
     }
 
     const expired = await authModel.checkOtp(otp, email);
     if (expired.length < 1) {
-      return writeResponse(res, null, 410, 'Otp code is expired');
+      return response(res, 410, 'Otp code is expired', null);
     }
 
     if (expired) {
       if (new Date(expired[0].otp_expired) < new Date()) {
-        return writeResponse(res, null, 410, 'Otp code is expired');
+        return response(res, 410, 'Otp code is expired', null);
       }
 
-      return writeResponse(res, null, 200, 'Please input your new password');
+      return response(res, 200, 'Please input your new password', null);
     }
   } catch (err) {
     // console.log(err);
-    return writeError(res, 500, err);
+    return response(res, 500, err, null);
   }
 };
 
@@ -285,18 +279,35 @@ const newPassword = async (req, res) => {
   try {
     const { otp, email, password } = req.body;
 
+    if (otp.length < 4) {
+      return response(res, 402, 'Invalid otp', null);
+    }
+
+    if (!validateEmail(email)) {
+      return response(res, 400, 'Email is not valid', null);
+    }
+
+    if (!validatePassword(password)) {
+      return response(
+        res,
+        400,
+        'Password must be more than eight characters',
+        null
+      );
+    }
+
     const hashPassword = await bcrypt.hash(password, saltRounds);
-    console.log(hashPassword);
+    // console.log(hashPassword);
     const update = await authModel.newPassword(otp, email, hashPassword);
 
     if (!update) {
-      return writeResponse(res, null, 400, 'Failed to change password');
+      return response(res, 400, 'Failed to change password', null);
     }
 
-    return writeResponse(res, null, 200, 'Password changed successfully');
+    return response(res, 200, 'Password changed successfully', null);
   } catch (err) {
-    console.log(err);
-    return writeError(res, 500, err);
+    // console.log(err);
+    return response(res, 200, err, null);
   }
 };
 
