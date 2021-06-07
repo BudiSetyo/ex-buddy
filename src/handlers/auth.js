@@ -1,25 +1,25 @@
 const authModel = require('../models/auth');
 const client = require('../database/redis');
 
-const { response } = require('../helpers/response');
+const {response} = require('../helpers/response');
 
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
-const validateEmail = (email) => {
+const validateEmail = email => {
   const re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
   return re.test(email);
 };
 
-const validateUser = (user) => {
+const validateUser = user => {
   if (user.length > 4) {
     return true;
   }
   return false;
 };
 
-const validatePassword = (password) => {
+const validatePassword = password => {
   if (password.length > 7) {
     return true;
   }
@@ -75,7 +75,7 @@ const register = async (req, res) => {
       .then(() => {
         return response(res, 200, 'Login success', null);
       })
-      .catch((err) => {
+      .catch(err => {
         return response(res, 500, err, null);
       });
   });
@@ -114,7 +114,7 @@ const login = async (req, res) => {
 
     authModel
       .getUserByEmail(user)
-      .then((result) => {
+      .then(result => {
         bcrypt.compare(password, result[0].password, (err, passwordValid) => {
           if (err) return response(res, 500, err, null);
 
@@ -123,7 +123,7 @@ const login = async (req, res) => {
           }
 
           if (passwordValid) {
-            const { id, user_name, role, profile_img } = result[0];
+            const {id, user_name, role, profile_img} = result[0];
             const payload = {
               id,
               username: user_name,
@@ -145,7 +145,8 @@ const login = async (req, res) => {
           }
         });
       })
-      .catch((err) => {
+      .catch(err => {
+        console.log(err);
         return response(res, 500, err, null);
       });
   }
@@ -159,7 +160,7 @@ const login = async (req, res) => {
 
     authModel
       .getUserByUsername(user)
-      .then((result) => {
+      .then(result => {
         bcrypt.compare(password, result[0].password, (err, passwordValid) => {
           if (err) return response(res, 500, err, null);
 
@@ -168,7 +169,7 @@ const login = async (req, res) => {
           }
 
           if (passwordValid) {
-            const { id, user_name, role, profile_img } = result[0];
+            const {id, user_name, role, profile_img} = result[0];
             const payload = {
               id,
               username: user_name,
@@ -180,7 +181,10 @@ const login = async (req, res) => {
               issuer: process.env.ISSUER,
             };
             jwt.sign(payload, process.env.SECRET_KEY, options, (err, token) => {
-              if (err) return response(res, 500, err, null);
+              if (err) {
+                console.log(err);
+                return response(res, 500, err, null);
+              }
 
               return response(res, 200, 'Login success', {
                 data: payload,
@@ -190,14 +194,15 @@ const login = async (req, res) => {
           }
         });
       })
-      .catch((err) => {
+      .catch(err => {
+        console.log(err);
         return response(res, 500, err, null);
       });
   }
 };
 
 const logout = (req, res) => {
-  const { userId, token } = req;
+  const {userId, token} = req;
 
   client.get(userId, (err, data) => {
     if (err) {
@@ -222,7 +227,7 @@ const logout = (req, res) => {
 
 const sendOtp = async (req, res) => {
   try {
-    const { email } = req.body;
+    const {email} = req.body;
 
     if (!validateEmail(email)) {
       return response(res, 400, 'Email is not valid', null);
@@ -247,7 +252,7 @@ const sendOtp = async (req, res) => {
 
 const otpVerif = async (req, res) => {
   try {
-    const { otp, email } = req.body;
+    const {otp, email} = req.body;
 
     if (!validateEmail(email)) {
       return response(res, 400, 'Email is not valid', null);
@@ -277,7 +282,7 @@ const otpVerif = async (req, res) => {
 
 const newPassword = async (req, res) => {
   try {
-    const { otp, email, password } = req.body;
+    const {otp, email, password} = req.body;
 
     if (otp.length < 4) {
       return response(res, 402, 'Invalid otp', null);
