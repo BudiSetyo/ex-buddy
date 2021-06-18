@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { writeError } = require('../helpers/response');
+const { writeError, response } = require('../helpers/response');
 
 const student = (req, res, next) => {
   const token = (req.header('x-acces-token') || '').split(' ')[1];
@@ -70,8 +70,30 @@ const verifyToken = (req, res, next) => {
   });
 };
 
+const studentOtorization = (req, res, next) => {
+  const role = req.role;
+
+  if (role && role === '1') {
+    return next();
+  }
+
+  return response(res, 403, 'Forbidden access');
+};
+
+const teacherOtorization = (req, res, next) => {
+  const role = req.role;
+
+  if (role && role === '2') {
+    return next();
+  }
+
+  return response(res, 403, 'Forbidden access');
+};
+
 module.exports = {
   student,
   teacher,
   verifyToken,
+  studentOtorization,
+  teacherOtorization,
 };
