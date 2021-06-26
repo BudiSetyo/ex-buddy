@@ -108,8 +108,6 @@ const getAllCourse = (req, res) => {
             : url + `?page=${pageNumber + 1}&limit=${limitPage || 5}`;
       }
 
-      // console.log(url);
-
       const info = {
         count,
         totalPage,
@@ -119,19 +117,16 @@ const getAllCourse = (req, res) => {
         result,
       };
 
-      res.status(200).send({
-        message: 'success',
-        info,
-      });
+      return response(res, 200, 'Success', { info });
     })
     .catch((err) => {
       console.log(err);
-      res.status(500).send(err);
+      return response(res, 500, err);
     });
 };
 
 const postCourse = (req, res) => {
-  const { idFasilitator } = req.params;
+  const id = req.id;
   const {
     className,
     description,
@@ -152,7 +147,7 @@ const postCourse = (req, res) => {
 
   courseModel
     .postCourse(
-      idFasilitator,
+      id,
       className,
       description,
       day,
@@ -164,89 +159,67 @@ const postCourse = (req, res) => {
       url
     )
     .then((result) => {
-      res.status(200).send({
-        message: 'success',
-        file: req.file,
-        url,
-      });
+      return response(res, 200, 'Success', { file: req.file, url });
     })
     .catch((err) => {
       console.log(err);
-      res.status(500).send({
-        message: 'error',
-        err,
-      });
+      return response(res, 500, err);
     });
 };
 
 const updateCourse = (req, res) => {
-  const id = req.params.id;
+  const id = req.id;
   const { day, startTime, endTime, pricing } = req.body || '';
 
   courseModel
     .updateCourse(id, day, startTime, endTime, pricing)
     .then((result) => {
-      res.status(200).send({
-        message: 'success',
-      });
+      return response(res, 200, 'Success');
     })
     .catch((err) => {
       console.log(err);
-      res.status(500).send({
-        message: 'error',
-        err,
-      });
+      return response(res, 500, err);
     });
 };
 
 const deleteCourse = (req, res) => {
-  const id = req.params.id;
+  const id = req.id;
 
   courseModel
     .deleteCourse(id)
     .then((result) => {
-      res.status(200).send({
-        message: 'success',
-      });
+      return response(res, 200, 'Success');
     })
     .catch((err) => {
       console.log(err);
-      res.status(500).send({
-        message: 'error',
-        err,
-      });
+      return response(res, 500, err);
     });
 };
 
 const registerCourse = async (req, res) => {
-  const { id } = req.params;
+  const { id } = req.id;
   const { idClass } = req.query;
 
   const isRegister = (await courseModel.isRegisterCourse(id, idClass)) || [];
 
   if (isRegister.length > 0) {
-    res.status(500).send({
-      message: 'you have enrolled in this class',
-    });
-    return;
+    return response(res, 400, 'You have enrolled in this class');
   }
 
   courseModel
     .registerCourse(id, idClass)
     .then((result) => {
-      res.status(200).send({
-        message: 'success',
-      });
+      return response(res, 200, 'Success');
     })
     .catch((err) => {
       console.log(err);
-      res.status(500).send(err);
+      return response(res, 500, err);
     });
 };
 
 const getCourseUser = (req, res) => {
   const { baseUrl, path, hostname, protocol } = req;
-  const id = req.params.id;
+  const id = req.id;
   const { search, sort, limit, page } = req.query || '';
 
   const searchValue = `%${search || ''}%`;
@@ -303,32 +276,26 @@ const getCourseUser = (req, res) => {
         result,
       };
 
-      res.status(200).send({
-        message: 'success',
-        info,
-      });
+      return response(res, 200, 'Success', { info });
     })
     .catch((err) => {
       console.log(err);
-      res.status(500).send(err);
+      return response(res, 500, err);
     });
 };
 
 const getSubCourse = (req, res) => {
-  const idUser = req.params.id;
+  const idUser = req.id;
   const idCourse = req.query.idCourse || '';
 
   courseModel
     .getSubCourse(idUser, idCourse)
     .then((result) => {
-      res.status(200).send({
-        message: 'success',
-        result,
-      });
+      return response(res, 200, 'Success', { result });
     })
     .catch((err) => {
       console.log(errr);
-      res.status(500).send(err);
+      return response(res, 500, err);
     });
 };
 
@@ -338,73 +305,62 @@ const addSubCourse = (req, res) => {
   courseModel
     .addSubCourse(subCourseName, idCourse)
     .then((result) => {
-      res.status(200).send({
-        message: 'success',
-      });
+      return response(res, 200, 'Success');
     })
     .catch((err) => {
-      res.status(500).send(err);
+      return response(res, 500, err);
     });
 };
 
 const addSubCourseScore = async (req, res) => {
-  const { idUser, idSubCourse, idCourse } = req.query;
+  const id = req.id;
+  const { idSubCourse, idCourse } = req.query;
   const { score } = req.body || '';
 
   const isSubCourseScored =
     (await courseModel.isSubCourseScored(idUser, idSubCourse, idCourse)) || [];
 
   if (isSubCourseScored.length > 0) {
-    res.status(500).send({
-      message: 'score has been added',
-    });
-    return;
+    return response(res, 400, 'Score has been added');
   }
 
   courseModel
-    .addSubCourseScore(idUser, idSubCourse, idCourse, score)
+    .addSubCourseScore(id, idSubCourse, idCourse, score)
     .then((result) => {
-      res.status(200).send({
-        message: 'success',
-      });
+      return response(res, 200, 'Success');
     })
     .catch((err) => {
       console.log(err);
-      res.status(500).send(err);
+      return response(res, 500, err);
     });
 };
 
 const updateSubCourseScore = async (req, res) => {
-  const { idUser, idSubCourse, idCourse } = req.query;
+  const idUser = req.id;
+  const { idSubCourse, idCourse } = req.query;
   const { score } = req.body;
 
   const isSubCourse =
     (await courseModel.isSubCourseScored(idUser, idSubCourse, idCourse)) || [];
 
   if (isSubCourse.length < 1) {
-    res.status(500).send({
-      message: 'Sub course not found',
-    });
-    return;
+    return response(res, 400, 'Subcourse not found');
   }
 
   courseModel
     .updateSubCourseScore(score, idUser, idSubCourse, idCourse)
     .then((result) => {
-      res.status(200).send({
-        message: 'success',
-        result,
-      });
+      return response(res, 200, 'Success');
     })
     .catch((err) => {
-      // console.log(err);
-      res.status(500).send(err);
+      // console.log(err);s
+      return response(res, 200, err);
     });
 };
 
 const getCourseFasilitator = (req, res) => {
   const { baseUrl, path, hostname, protocol } = req;
-  const { id } = req.params;
+  const id = req.id;
   const { limit, page } = req.query;
 
   courseModel
@@ -438,30 +394,24 @@ const getCourseFasilitator = (req, res) => {
         result,
       };
 
-      return res.status(200).send({
-        message: 'success',
-        info,
-      });
+      return response(res, 200, 'Success', { info });
     })
     .catch((err) => {
-      res.status(500).send(err);
+      return response(res, 500, err);
     });
 };
 
 const getCourseById = (req, res) => {
-  const { id } = req.params;
+  const id = req.id;
 
   courseModel
     .getCourseById(id)
     .then((result) => {
-      res.status(200).send({
-        message: 'Success',
-        result,
-      });
+      return response(res, 200, 'Success', { result });
     })
     .catch((err) => {
       console.log(err);
-      res.status(500).send(err);
+      return response(res, 500, err);
     });
 };
 

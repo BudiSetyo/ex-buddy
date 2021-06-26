@@ -31,6 +31,10 @@ const register = async (req, res) => {
   const email = req.body.email || '';
   const password = req.body.password || '';
 
+  if (!username || !email || !password) {
+    return response(res, 400, 'Some fields cannot be empty', null);
+  }
+
   if (!validateUser(username)) {
     return response(
       res,
@@ -53,10 +57,6 @@ const register = async (req, res) => {
     );
   }
 
-  if (!username || !email || !password) {
-    return response(res, 400, 'Some fields cannot be empty', null);
-  }
-
   const usernameTaken = (await authModel.getUserByUsername(username)) || [];
 
   if (usernameTaken.length > 0) {
@@ -73,7 +73,7 @@ const register = async (req, res) => {
     authModel
       .register(username, email, hash)
       .then(() => {
-        return response(res, 200, 'Login success', null);
+        return response(res, 200, 'Register success', null);
       })
       .catch((err) => {
         return response(res, 500, err, null);

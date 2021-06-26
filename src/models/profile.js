@@ -30,6 +30,20 @@ const getProfile = (id) => {
   });
 };
 
+const getPassword = (id) => {
+  return new Promise((resolve, reject) => {
+    const queryString = 'SELECT password FROM users WHERE id = ?';
+
+    connect.query(queryString, [id], (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result);
+      }
+    });
+  });
+};
+
 const updatePassword = (password, id) => {
   return new Promise((resolve, reject) => {
     const queryString = 'UPDATE users SET password = ? WHERE id = ?';
@@ -47,5 +61,6 @@ const updatePassword = (password, id) => {
 module.exports = {
   updateProfile,
   getProfile,
+  getPassword,
   updatePassword,
 };

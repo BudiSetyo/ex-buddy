@@ -11,7 +11,7 @@ const validatePassword = (password) => {
 };
 
 const updateProfile = async (req, res) => {
-  const id = req.params.id;
+  const id = req.id;
   const file = req.file || {};
   let valueUpdate = req.body;
   let url = '';
@@ -25,7 +25,6 @@ const updateProfile = async (req, res) => {
     .updateProfile(valueUpdate, id)
     .then((result) => {
       return response(res, 200, 'Update profile success', {
-        result,
         file: req.file,
         url,
       });
@@ -37,7 +36,7 @@ const updateProfile = async (req, res) => {
 };
 
 const getProfile = (req, res) => {
-  const { id } = req.params;
+  const id = req.id;
 
   profileModels
     .getProfile(id)
@@ -49,9 +48,9 @@ const getProfile = (req, res) => {
     });
 };
 
-const updatePassword = (req, res) => {
-  const { id } = req.params;
-  const { password } = req.body;
+const updatePassword = async (req, res) => {
+  const id = req.id;
+  const { currentPassword, password } = req.body;
 
   if (!validatePassword(password)) {
     return response(
@@ -62,19 +61,34 @@ const updatePassword = (req, res) => {
     );
   }
 
-  bcrypt.hash(password, saltRounds, (err, hash) => {
-    if (err) return response(res, 500, err, null);
+  const getPassword = (await profileModels.getPassword(id)) || [];
 
-    profileModels
-      .updatePassword(hash, id)
-      .then((result) => {
-        return response(res, 200, 'Password successfully changed', null);
-      })
-      .catch((err) => {
-        // console.log(err);
-        return response(res, 500, err, null);
+  bcrypt.compare(
+    currentPassword,
+    getPassword[0].password,
+    (err, passwordValid) => {
+      if (err) return response(res, 400, err);
+      console.log(passwordValid);
+
+      if (!passwordValid) {
+        return response(res, 400, 'Current password does not match');
+      }
+
+      bcrypt.hash(password, saltRounds, (err, hash) => {
+        if (err) return response(res, 500, err, null);
+
+        profileModels
+          .updatePassword(hash, id)
+          .then((result) => {
+            return response(res, 200, 'Password successfully changed', null);
+          })
+          .catch((err) => {
+            console.log(err);
+            return response(res, 500, err, null);
+          });
       });
-  });
+    }
+  );
 };
 
 module.exports = {

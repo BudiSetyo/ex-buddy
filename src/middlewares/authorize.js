@@ -73,7 +73,9 @@ const verifyToken = (req, res, next) => {
 const studentOtorization = (req, res, next) => {
   const role = req.role;
 
-  if (role && role === '1') {
+  console.log(typeof role);
+
+  if (role === 1) {
     return next();
   }
 
@@ -83,7 +85,7 @@ const studentOtorization = (req, res, next) => {
 const teacherOtorization = (req, res, next) => {
   const role = req.role;
 
-  if (role && role === '2') {
+  if (role === 2) {
     return next();
   }
 
